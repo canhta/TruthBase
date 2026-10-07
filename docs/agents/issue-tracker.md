@@ -1,6 +1,6 @@
 # Issue tracker
 
-GitHub Issues in `canhta/TruthBase` own implementation scope, acceptance, status and blocking relationships. [Roadmap](../roadmap.md) is a navigation index only; keep no local issue-body or status copies. Specs remain in the repository and issues link to their governing sections.
+GitHub Issues in `canhta/TruthBase` are the sole source of implementation scope, acceptance, progress and blocking relationships. Specs remain in this repository; issues link to their governing sections. Keep no local issue-body, task-list or status copies.
 
 Use `gh issue view NUMBER --repo canhta/TruthBase --comments` to read a ticket. For multiline writes, use `--body-file`. Keep comments, labels and state changes within the user's authorized task. Use the [triage vocabulary](triage-labels.md).
 

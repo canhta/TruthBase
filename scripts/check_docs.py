@@ -51,9 +51,9 @@ for path, body in texts.items():
         except ValueError as exc:
             errors.append(f'{name}: invalid JSON example: {exc}')
 
-catalog = (ROOT / 'docs/evals/scenarios.md').read_text()
+catalog = (ROOT / 'docs/evaluation.md').read_text()
 scenarios = re.findall(r'^\| (E\d+) \|', catalog, re.M)
-requirements_text = (ROOT / 'docs/specs/requirements-and-traceability.md').read_text()
+requirements_text = (ROOT / 'docs/spec.md').read_text()
 requirements = re.findall(r'^\| (REQ-\d+) \|', requirements_text, re.M)
 require(len(scenarios) == len(set(scenarios)), 'duplicate scenario definitions')
 require(len(requirements) == len(set(requirements)), 'duplicate requirement definitions')
@@ -65,19 +65,19 @@ for path, body in texts.items():
     for requirement in re.findall(r'\bREQ-\d{2,}\b', body):
         require(requirement in requirements, f'{path.relative_to(ROOT)}: unknown requirement {requirement}')
 
-roadmap = (ROOT / 'docs/roadmap.md').read_text()
-task_rows = re.findall(r'^\| \[(M\d+):[^\]]+\]\((https://github.com/canhta/TruthBase/issues/\d+)\)', roadmap, re.M)
+task_rows = [row for body in texts.values() for row in re.findall(r'\[(M\d{2})\]\((https://github.com/canhta/TruthBase/issues/\d+)\)', body)]
 tasks = {task for task, _ in task_rows}
-require(len(task_rows) == len(tasks) == 12, 'roadmap must map each M1 task once')
-require(tasks == {f'M{i:02}' for i in range(12)}, 'roadmap task IDs changed')
-require(len({url for _, url in task_rows}) == len(tasks), 'multiple tasks share an issue')
+require(tasks == {f'M{i:02}' for i in range(12)}, 'contract task references must cover M00–M11')
+for task in tasks:
+    urls = {url for name, url in task_rows if name == task}
+    require(len(urls) == 1, f'{task}: conflicting issue links')
 for row in re.findall(r'^\| E\d+ \|.*$', catalog, re.M):
     owner = row.split('|')[-2]
     ids = re.findall(r'\b[MF]\d+\b', owner)
     require(bool(ids) and all(x in tasks or x in {'F01', 'F02'} for x in ids), f'invalid scenario owner: {row}')
 invariants = re.findall(r'^\| (INV-\d+) \|', (ROOT / 'AGENTS.md').read_text(), re.M)
 require(set(invariants) == {f'INV-{i:02}' for i in range(1, 13)} and len(invariants) == 12, 'invariant IDs changed')
-vector_file = ROOT / 'docs/contracts/digest-vectors.json'
+vector_file = ROOT / 'docs/digest-vectors.json'
 vectors = json.loads(vector_file.read_text())
 for vector in vectors['vectors']:
     encoded = json.dumps(vector['input'], ensure_ascii=False, sort_keys=True, separators=(',', ':'))

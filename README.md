@@ -2,18 +2,28 @@
 
 Governed memory for agents: evidence becomes a reviewed fact, and access is checked before that fact enters an answer.
 
-**Status: specification and implementation planning.** The runtime is not implemented or production-ready. The first milestone is a synthetic refund-policy flow using Hindsight and Hermes: import evidence, clarify/revise, approve or decline, retrieve scoped facts, publish an exact version, then revoke access. Procedure learning and irreversible cleanup follow later.
+The design covers evidence ingestion, human review, scoped retrieval, exact-version publication and revocation, with Hindsight and Hermes integrations. [GitHub Issues](https://github.com/canhta/TruthBase/issues) are the sole source for implementation scope, progress and blockers.
 
-## Start here
+## Documentation
 
-- [Documentation](docs/README.md): product scope and canonical contracts.
-- [Implementation issues](docs/roadmap.md): work and blocking dependencies on GitHub.
-- [Project state](PROJECT_STATE.md): verified implementation reality.
-- [Contributing](CONTRIBUTING.md): focused changes, meaningful tests and PR expectations.
+| Read for | File |
+|---|---|
+| Agent instructions | [AGENTS.md](AGENTS.md) |
+| Domain vocabulary | [CONTEXT.md](CONTEXT.md) |
+| Contribution, code, tests and handoff | [CONTRIBUTING.md](CONTRIBUTING.md) |
+| Product, architecture and requirements | [Specification](docs/spec.md) |
+| Fact model, evidence and human review | [Facts](docs/facts.md) |
+| Authorization, publication and retrieval | [Access](docs/access.md) |
+| Transactions, concurrency and revocation ordering | [Consistency](docs/consistency.md) |
+| API shapes and examples | [API](docs/api.md) |
+| Learning, cleanup and operations | [Lifecycle](docs/lifecycle.md) |
+| Hindsight, Hermes and upstream source records | [Integrations](docs/integrations.md) |
+| Evaluation criteria and scenarios | [Evaluation](docs/evaluation.md) |
+| Design choices and owner decisions | [ADRs](docs/adr/decisions.md) |
 
-Agents read [AGENTS.md](AGENTS.md), the selected issue and its linked contracts. [CONTEXT.md](CONTEXT.md) owns vocabulary; [ADRs](docs/adr/decisions.md) own design choices.
+Read only the sections linked by your issue. Contracts and evaluation cases specify expected behavior; they do not record implementation status or passing results.
 
-## Check the documentation
+## Documentation check
 
 Python 3.12 or newer; no third-party packages required:
 
@@ -23,10 +33,8 @@ cd TruthBase
 python3 scripts/check_docs.py
 ```
 
-The check validates links, structured examples, traceability and digest vectors. It does not run application or upstream integration tests.
-
-Local upstream checkouts live under ignored `.upstream/`. Reports stay under ignored `reports/`. Their presence is not required to clone, review or validate the public repository.
+The check validates links, examples, traceability and digest vectors. Application and integration evidence belongs in the relevant issue. Local upstream checkouts (`.upstream/`) and reports (`reports/`) are ignored and are not required to validate this repository.
 
 ## License and security
 
-[MIT](LICENSE). Upstream projects retain their own licenses and are not vendored here. Report vulnerabilities through the private channel in [SECURITY.md](SECURITY.md).
+[MIT](LICENSE). Upstream projects retain their own licenses and are not vendored here. Report vulnerabilities through [SECURITY.md](SECURITY.md).
