@@ -48,7 +48,7 @@ Never invent upstream methods or configuration flags. Pin the upstream revision,
 
 ## Tooling and code comments
 
-Use Biome for application formatting/linting and Lefthook for Git hooks.
+Use Biome for application formatting/linting and Lefthook for Git hooks. In the current development stage, verify locally; do not trigger or wait for remote CI unless the user explicitly requests it.
 
 Keep dependency and toolchain versions in their authoritative package/toolchain configuration; do not repeat hardcoded versions in application code, scripts or documentation. Use the package manager and upstream CLIs to add, upgrade and resolve dependencies. Never hand-edit lockfiles or generated migration files; generate and apply migrations through the owning migration CLI. Preserve reproducible locked installs and verify upgrades against the current runtime and integration contracts.
 
