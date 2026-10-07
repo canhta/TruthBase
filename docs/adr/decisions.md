@@ -64,3 +64,21 @@ User request, 2026-10-07: organize the implementation as a monorepo. Use `apps`,
 User decision, 2026-10-07: keep knowledge content in Markdown for direct inspection and portability; retain a small database for review state, permissions and revocation. This replaces the earlier all-in-PostgreSQL content-storage description. “Small” describes responsibility, not a measured capacity claim. File content and database control state have separate authority; neither is a synchronized second editable copy of the other. Hindsight/OpenFGA retain their own required stores.
 
 Use immutable files registered only after durable writes, existing semantic digests plus byte hashes, and the existing transactional authority/release gates. Authorized edits create reviewed revisions. GBrain is a reference for Markdown organization/parsing, not a replacement governance engine. See [storage](../facts.md#markdown-content-storage), [commit protocol](../consistency.md#content-commit-protocol), [volume access](../access.md#content-volume-boundary) and [backup restore](../lifecycle.md#backup-restore). M03 owns persistence/crash proof; downstream tasks reuse it.
+
+## ADR-18: TruthBase owns memory improvement and backup
+
+User direction, 2026-10-07: memory management, continuous improvement, daily dreaming and GitHub fact backup belong to TruthBase core, using configured LLM APIs independently of Hermes. Implement recurring knowledge proposals and a private-repository content-backup capability in the synthetic milestone. Hermes remains a required client integration, not the memory orchestrator. Preserve ADR-12: automatic procedure activation and irreversible cleanup remain deferred; scheduled runs cannot approve business facts or activate their own skills.
+
+The [maintenance contract](../lifecycle.md#core-owned-memory-maintenance) owns scheduling, budgets, lineage and evaluation. [Private backup](../lifecycle.md#private-github-content-backup) owns export policy and verified remote receipts; Git content alone cannot restore the control ledger. Actual destinations, credentials and real-data exports require the existing owner decisions. This adds product capabilities, not permission to run a real daily job or publish data now.
+
+## ADR-19: trust-led intake and reviewable fact units
+
+User direction, 2026-10-07: prioritize trustworthy data, attribution of every addition/change and explicit approval over autonomous bulk scanning. Choose fact boundaries that preserve a complete verifiable rule while composing into large-system domain/capability coverage. [Provenance](../facts.md#provenance-for-every-mutation), [fact boundaries](../facts.md#fact-boundaries-and-system-coverage) and [deliberate intake](../facts.md#deliberate-intake) own these rules. Raw source storage is not knowledge approval; daily improvement remains bounded proposal work. Do not optimize for fact volume or generate missing coverage as truth.
+
+## ADR-20: graph/editor and inbound Confluence
+
+User direction, 2026-10-07: expose facts as scoped graphs and directly readable/editable Markdown in the web console. Views share canonical identities and policies; edits create reviewed draft revisions. User selected one-way Confluence import; no writeback. The initial adapter target is Confluence Cloud REST v2, an implementation default rather than a claim about the user's deployment. [Graph/editor](../spec.md#graph-and-markdown-workspace) and [Confluence sync](../integrations.md#confluence-inbound-synchronization) own the contracts.
+
+## ADR-21: framework-independent memory access
+
+User direction, 2026-10-07: future Dify, Mastra and LangChain agents must consume TruthBase effectively. Keep a shared versioned MCP/HTTP context contract, scoped delegated identity and provider-independent core now; F03 adds tested framework adapters later. Context retrieval must preserve fact qualifiers, provenance and revocation boundaries without requiring answer generation. Named-framework compatibility is not claimed until pinned real-client evidence exists.

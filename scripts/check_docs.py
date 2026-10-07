@@ -58,7 +58,7 @@ requirements = re.findall(r'^\| (REQ-\d+) \|', requirements_text, re.M)
 require(len(scenarios) == len(set(scenarios)), 'duplicate scenario definitions')
 require(len(requirements) == len(set(requirements)), 'duplicate requirement definitions')
 require(set(f'E{i:02}' for i in range(1, 63)) <= set(scenarios), 'an original E01-E62 scenario was lost')
-require(set(requirements) == {f'REQ-{i:02}' for i in range(1, 34)}, 'requirement definitions differ from REQ-01–REQ-33')
+require(set(requirements) == {f'REQ-{i:02}' for i in range(1, 39)}, 'requirement definitions differ from REQ-01–REQ-38')
 for path, body in texts.items():
     for scenario in re.findall(r'\bE\d{2,}\b', body):
         require(scenario in scenarios, f'{path.relative_to(ROOT)}: unknown scenario {scenario}')
@@ -67,14 +67,14 @@ for path, body in texts.items():
 
 task_rows = [row for body in texts.values() for row in re.findall(r'\[(M\d{2})\]\((https://github.com/canhta/TruthBase/issues/\d+)\)', body)]
 tasks = {task for task, _ in task_rows}
-require(tasks == {f'M{i:02}' for i in range(16)}, 'contract task references must cover M00–M15')
+require(tasks == {f'M{i:02}' for i in range(19)}, 'contract task references must cover M00–M18')
 for task in tasks:
     urls = {url for name, url in task_rows if name == task}
     require(len(urls) == 1, f'{task}: conflicting issue links')
 for row in re.findall(r'^\| E\d+ \|.*$', catalog, re.M):
     owner = row.split('|')[-2]
     ids = re.findall(r'\b[MF]\d+\b', owner)
-    require(bool(ids) and all(x in tasks or x in {'F01', 'F02'} for x in ids), f'invalid scenario owner: {row}')
+    require(bool(ids) and all(x in tasks or x in {'F01', 'F02', 'F03'} for x in ids), f'invalid scenario owner: {row}')
 invariants = re.findall(r'^\| (INV-\d+) \|', (ROOT / 'AGENTS.md').read_text(), re.M)
 require(set(invariants) == {f'INV-{i:02}' for i in range(1, 13)} and len(invariants) == 12, 'invariant IDs changed')
 vector_file = ROOT / 'docs/digest-vectors.json'

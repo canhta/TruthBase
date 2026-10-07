@@ -8,7 +8,7 @@ Status: proposed v0.1 specification. Audience: implementation agents, product ow
 
 Business knowledge is distributed across tickets, messages, code and release evidence. Sources change at different rates, contain conflicting statements and have different confidentiality boundaries. A simple memory store can preserve an incorrect inference, expose an internal source through a summary or keep using information after its source is withdrawn.
 
-Build a governed memory service that captures what is known, what is uncertain, who approved it, when it applies, which evidence supports it and who may use it. Learn from changes without confusing machine-generated interpretation with approved truth.
+Build a governed memory service that captures what is known, what is uncertain, who added or changed it, who approved it, when it applies, which evidence supports it and who may use it. Trust and verifiability take priority over capture volume: storing a source or AI proposal never makes it approved knowledge. Learn from changes without confusing machine-generated interpretation with approved truth.
 
 ### Users and jobs
 
@@ -47,7 +47,7 @@ Procedure learning, skill activation and irreversible physical cleanup follow af
 
 ### Non-goals
 
-No autonomous production code changes. No blanket employee surveillance. No automatic fine-tuning. No customer-facing unrestricted shell or repository tools. No claim that source deletion can erase text a recipient already received. No simultaneous deployment of every memory engine.
+No autonomous production code changes. No blanket employee surveillance. No automatic fine-tuning. No customer-facing unrestricted shell or repository tools. No claim that source deletion can erase text a recipient already received. No simultaneous deployment of every memory engine. Dify, Mastra and LangChain adapters/certification follow the first milestone; the common authenticated API/MCP contract supports that extension without changing core.
 
 ### Success definition
 
@@ -85,6 +85,8 @@ Ticket / Email / Code / Tests / Deployment
 
 Learning workers -> proposed facts / proposed skills / review tasks
 Lifecycle workers -> invalidation / rebuild / authorized cleanup
+Memory scheduler -> bounded daily proposal/evaluation jobs
+Backup worker -> approved private GitHub content snapshot
 ```
 
 ### Ownership and trust
@@ -98,6 +100,8 @@ Lifecycle workers -> invalidation / rebuild / authorized cleanup
 | Memory backend | Derived recall structures and bounded summaries | Canonical review state or guest grants |
 | Hermes adapter | Scoped context exchange and candidate proposals | Direct database, FGA-admin or publication credentials |
 | Lifecycle worker | Bounded, logged plans and dependency maintenance | Arbitrary LLM-generated SQL |
+| Memory service | Scoped capture, LLM routing, maintenance schedules, proposals and evaluation receipts | Self-approval, unbounded agent execution or model-weight training |
+| Backup worker | Explicitly authorized content snapshots and remote verification | Authority restoration from files or arbitrary Git remotes |
 
 Use separate database roles and credentials per service. A single deployment may run several components initially, but retain their capability boundaries. Canonical Markdown volumes, the PostgreSQL control ledger and Hindsight's internal store have separate ownership and permissions; never depend on undocumented engine tables.
 
@@ -153,7 +157,7 @@ This architecture does not require Graphiti or Cognee in the first pilot. Add a 
 
 ## Requirements and Traceability
 
-Status: normative product requirements. `MUST` is required when the owning feature is enabled. M1 requires all non-deferred requirements; F01/F02 capabilities remain disabled until their own gates pass. `SHOULD` is expected unless an explicit decision defers it. Acceptance IDs are defined in [SCENARIOS](evaluation.md#acceptance-scenario-catalog).
+Status: normative product requirements. `MUST` is required when the owning feature is enabled. M1 requires all non-deferred requirements; F01/F02 capabilities remain disabled until their own gates pass; F03 named-framework certification is deferred while the common client contract is implemented in M1. `SHOULD` is expected unless an explicit decision defers it. Acceptance IDs are defined in [SCENARIOS](evaluation.md#acceptance-scenario-catalog).
 
 | ID | Requirement | Canonical spec | Test | Task |
 |---|---|---|---|---|
@@ -187,9 +191,14 @@ Status: normative product requirements. `MUST` is required when the owning featu
 | REQ-28 | MUST enforce role and evidence-review requirements independently | [Fact Review State Machine](facts.md#fact-review-state-machine), [Authorization and Publication](access.md#authorization-and-publication) | E62 | [M04](https://github.com/canhta/TruthBase/issues/5), [M05](https://github.com/canhta/TruthBase/issues/6) |
 | REQ-29 | MUST provide an accessible Astryx web console with server-enforced scoped administration | [Web administration](#web-administration) | E71 | [M12](https://github.com/canhta/TruthBase/issues/15) |
 | REQ-30 | MUST configure Jira, GitHub, inbound email and LLM connections with write-only credentials and distinct bounded probes | [Connection configuration](integrations.md#connection-configuration) | E72-E73 | [M13](https://github.com/canhta/TruthBase/issues/16) |
-| REQ-31 | MUST serve independent authenticated Codex and OpenCode clients through the governed MCP boundary | [Independent MCP clients](api.md#independent-mcp-clients) | E74 | [M14](https://github.com/canhta/TruthBase/issues/17) |
+| REQ-31 | MUST serve independent authenticated Codex and OpenCode clients through shared governed MCP and framework-neutral HTTP context boundaries | [Independent MCP clients](api.md#independent-mcp-clients) | E74 | [M14](https://github.com/canhta/TruthBase/issues/17) |
 | REQ-32 | MUST package the integrated service with Docker, persistent state, protected secrets and verified readiness/recovery | [Docker deployment](lifecycle.md#docker-deployment) | E75 | [M15](https://github.com/canhta/TruthBase/issues/18) |
 | REQ-33 | MUST keep knowledge payloads in immutable Markdown with transactional control references, verified bytes and matched backup recovery | [Markdown storage](facts.md#markdown-content-storage), [Commit protocol](consistency.md#content-commit-protocol) | E76-E77, E46 | [M03](https://github.com/canhta/TruthBase/issues/4), [M11](https://github.com/canhta/TruthBase/issues/12) |
+| REQ-34 | MUST own bounded scheduled memory proposals, LLM routing and observable web controls independently of agent clients | [Core memory](lifecycle.md#core-owned-memory-maintenance) | E78, E35-E37, E48 | [M16](https://github.com/canhta/TruthBase/issues/20) |
+| REQ-35 | MUST provide explicitly authorized private GitHub content backup with verified receipts and honest recovery coverage | [Private backup](lifecycle.md#private-github-content-backup) | E79, E46 | [M17](https://github.com/canhta/TruthBase/issues/21) |
+| REQ-36 | MUST attribute every mutation and admit independently reviewable, evidence-bound facts through bounded intake with explicit system coverage | [Provenance](facts.md#provenance-for-every-mutation), [Fact boundaries](facts.md#fact-boundaries-and-system-coverage), [Intake](facts.md#deliberate-intake) | E80-E81, E15-E20 | [M03](https://github.com/canhta/TruthBase/issues/4), [M05](https://github.com/canhta/TruthBase/issues/6), [M06](https://github.com/canhta/TruthBase/issues/7), [M16](https://github.com/canhta/TruthBase/issues/20) |
+| REQ-37 | MUST expose bounded authorized graph/list/Markdown views and conflict-safe draft editing through the same core | [Graph workspace](#graph-and-markdown-workspace), [View API](api.md#graph-and-markdown-views) | E82, E18, E56 | [M12](https://github.com/canhta/TruthBase/issues/15) |
+| REQ-38 | MUST synchronize selected Confluence sources inward with provenance, restrictions, conflict-safe local drafts and no writeback | [Confluence sync](integrations.md#confluence-inbound-synchronization) | E83, E28, E81 | [M18](https://github.com/canhta/TruthBase/issues/22) |
 
 The spec column links to the canonical owner. Task IDs resolve through the [roadmap](https://github.com/canhta/TruthBase/issues). Each implementation pull request must reference at least one requirement and test ID. A requirement is not complete merely because an API returns a success code: verify resulting state, audit history, outbox events, retrieval eligibility and unauthorized-access behavior.
 
@@ -199,16 +208,29 @@ Every enabled MUST requirement needs evidence before a real-data pilot. Deferred
 
 ## Web administration
 
-The web console uses React, TypeScript and Astryx. Python remains the backend language. Use one authenticated API and the same policy decisions for browser, MCP and Hermes callers; browser visibility is not an authorization boundary.
+The web console is the primary management interface, using React, TypeScript and Astryx. Python remains the backend language. Core application services expose typed use cases shared by HTTP, MCP and workers; neither the frontend nor Hermes contains a second implementation of memory rules. Extend a core capability through its port, API contract and scoped web workflow rather than introducing a general plugin framework. Use one authenticated API and the same policy decisions for browser, MCP and Hermes callers; browser visibility is not an authorization boundary.
 
 | Area | User outcome |
 |---|---|
 | Access | Inspect scoped principals, roles and exact publication grants; grant or revoke only within delegated authority |
 | Review and Publications | Read evidence, resolve clarification, decide with notes, inspect exact versions and publish through separate approval/grant steps |
-| Connections | Configure Jira, GitHub, inbound email and LLM destinations; replace credentials, test connectivity and inspect sanitized failures |
+| Connections | Configure Jira, GitHub, Confluence inbound sync, email and LLM destinations; replace credentials, test connectivity and inspect sanitized failures |
 | Agents | Connect an independently authenticated Codex or OpenCode client to MCP; inspect scope and revoke agent credentials |
-| Operations | Inspect readiness, worker failures and projection lag; Docker lifecycle stays with the deployment operator |
+| Operations | Inspect readiness, worker failures, projection lag, memory-run outcomes and backup coverage; Docker lifecycle stays with the deployment operator |
+| Memory | Switch between scoped list, graph and Markdown views; inspect domain/capability coverage, creator/editor/source/reviewer and exact diffs; save edits only as new candidates |
+| Learning | Configure daily maintenance, preview selected inputs, run/cancel jobs and inspect proposed diffs, evaluation evidence and cost; procedure activation remains separately gated |
+| Backups | Configure a private destination, inspect snapshot coverage/last verified commit, run/cancel backup and view content-only versus full recovery readiness |
 
 Persist project selection in the UI, but validate scope on every request. Clear previous-project data on scope switch. Preserve draft notes on recoverable errors, make stale-version conflicts explicit, and show loading, empty, denied and failed states separately without exposing hidden objects. Core review/access/settings flows must support keyboard navigation and labelled controls. Avoid a second project-progress dashboard.
 
-The synthetic milestone includes this console, connection configuration and bounded tests, external-agent MCP access, and Docker packaging. Live source synchronization requires a separately scoped connector issue and Q-05 authorization; configuring a connection alone does not enable ingestion. Procedure learning and irreversible cleanup remain deferred.
+The synthetic milestone includes this console, connection configuration and bounded tests, external-agent MCP access, Docker packaging, core-owned scheduled knowledge proposals and private-repository content-backup capability tested with synthetic data. Live source synchronization requires its scoped connector issue and Q-05 authorization; Confluence inbound sync is the first explicitly selected live-adapter capability, with synthetic/authorized fixtures for acceptance. Configuring a connection alone does not enable ingestion. Procedure learning and irreversible cleanup remain deferred.
+
+### Graph and Markdown workspace
+
+Graph, list and Markdown views resolve the same canonical IDs/revisions and permissions. Start with a selected domain/capability or fact and expand a bounded neighborhood; paginate server-side, cap nodes/edges, filter by entity/relationship/status and retain an accessible list alternative. Avoid loading an entire large organization into a visual graph. Node selection opens its verified Markdown, evidence, change history and review actions. The UI always distinguishes current approved, proposed, historical and unavailable content according to the selected mode.
+
+Edges distinguish evidence support/contradiction, derivation, explicit supersession and coverage membership. Each edge has recorded lineage and an asserted or proposed status; similarity is a retrieval hint, not an asserted business relationship. Graph data is a derived projection over canonical records and relation manifests, not a new graph database or another authoring store. Graph expand/search/counts filter visibility before transmission; no hidden node placeholders, dangling labelled edges or secret-derived layout/count hints. A guest graph, if enabled, contains permitted sanitized publication objects only.
+
+The Markdown editor shows exact revision and author/reviewer history, preview and a semantic/evidence diff. Existing structured revision routes validate the edited document; saving produces a new immutable draft with the base revision/version and required change note. Never save over an approved file or accept approval/actor fields from frontmatter. Concurrent edits return a conflict with an authorized comparison; the user resolves and resubmits a fresh revision. No last-write-wins, silent auto-merge or approval carried across a content change. Apply the existing review state machine after saving.
+
+Render Markdown as untrusted content: sanitize HTML, deny active scripts/unsafe URLs, and proxy or block external assets according to source/egress policy. Preview must not fetch arbitrary remote images or execute embedded code/macros. Web browsing/editing operates through the storage API, never a raw directory mount or writable static-file route.

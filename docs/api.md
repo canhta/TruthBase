@@ -275,3 +275,34 @@ Configuration shapes are owned by [connection configuration](integrations.md#con
 Expose the existing governed MCP tool contract through an authenticated gateway transport usable independently of Hermes. Start with Streamable HTTP; pin the protocol/SDK and verify transport/auth compatibility with actual pinned Codex and OpenCode versions in the implementation issue. Provide tested client configuration examples at that point, never guessed flags or a claim based only on an SDK client.
 
 Map authenticated credentials to a principal and permitted scope on the server. A caller-supplied tenant/project only narrows that scope. Reuse HTTP application services, errors, idempotency, eligibility and final-release checks. Do not expose provider keys, connection administration, access administration, approval, publication grants, shell execution or destructive cleanup as agent tools. Existing proposal/review-read tools remain capability scoped. Cross-session context isolation and revoked credentials must be tested through both real clients. Test doubles can validate mapping but cannot satisfy interoperability acceptance.
+
+## Memory maintenance controls
+
+Proposed operator routes use existing scoped authentication, idempotency and expected-version rules. `manage_memory_jobs` manages schedules and bounded runs but conveys no additional source-read, model-egress, approval or backup-export rights; execution intersects all of them. `manage_backups` manages snapshot configuration/jobs within the same export limits. Credentials remain in the connection boundary.
+
+| Route | Contract |
+|---|---|
+| `POST /v1/observations` | `propose_fact` submits attributed evidence/verified-outcome claims as untrusted learning input; returns durable receipt and candidate/job reference, never approval |
+| `PUT /v1/memory-schedule` | Configure or disable project-local schedule, timezone, route, budget and policy under `manage_memory_jobs` |
+| `POST /v1/memory-runs` | Start a bounded scoped maintenance run with optional dry-run; dry-run reports selection without model calls or proposal writes |
+| `POST /v1/memory-runs/{run_id}/cancel` | Fence future work; preserve already committed receipts and incurred-cost evidence |
+| `POST /v1/backup-runs` | Start a policy-scoped content snapshot using an enabled `github_backup` connection; `manage_backups` |
+| `POST /v1/backup-runs/{run_id}/cancel` | Fence subsequent export; already handed-off bytes follow the existing boundary |
+
+Read run status through `GET /v1/jobs/{job_id}` with existing scope/visibility rules. Observation payloads identify speaker kind, source references, captured scope/time and outcome verification references; the server supplies submitter identity and validates authority. Missing verification remains unverified. The Markdown content/commit protocol applies to durable text. Do not expose schedules, backup exports or maintenance controls as ordinary agent MCP tools; approved observation submission maps to the existing proposal path. File imports and observations never accept caller-supplied approval/grant state.
+
+## Graph and Markdown views
+
+`GET /v1/graph` accepts narrowed scope, mode, permitted root IDs, allowed edge kinds, depth and cursor under existing read/history/review capabilities. Enforce server-side limits and current eligibility on each page; cursors bind principal, scope, filters and generation and fail/restart when these change. Return only authorized nodes/edges with canonical references; totals and truncation indicators describe the visible result only.
+
+`GET /v1/fact-revisions/{revision_id}/document` returns verified Markdown and a base-version token only when the caller may view that revision in the selected mode. Existing fact-revision creation accepts a discriminated input form: structured claim or a strictly parsed Markdown document, never both. Both forms use the same schema/digest service, `propose_fact`, expected base version, idempotency and change-note requirements. A write never implies the ability to read hidden predecessors. Review notes/history retain their own audience checks.
+
+## Framework-neutral memory consumption
+
+Core transports must serve any authenticated client without importing its framework into domain code. MCP exposes narrow tools; versioned HTTP/OpenAPI supports workflow/retriever adapters. Future Dify, Mastra and LangChain adapters map their transport/context formats to these contracts; they do not maintain a second memory store or bypass policy through Hindsight/SQL.
+
+`POST /v1/context` uses the same identity/scope/mode/eligibility/release service as query, with server-capped result count and context budget. It returns a versioned structured bundle of permitted exact fact/publication references, bounded content, authorized citations, validity/epistemic qualifiers, receipt ID and generation/freshness metadata. It performs retrieval without requiring a second answer-generation LLM call. Guests receive only sanitized exact publication references. If a complete qualified fact cannot fit, omit it with a visible-result truncation indicator; never drop its exception to fit a token budget. Requested token budgets identify a supported tokenizer or use a conservative server bound; no unverified exact token-count claim.
+
+Credentials bind a client application and an authenticated principal/delegation. Caller fields such as `user_id`, session name, workspace label or memory namespace never establish authority. A shared app service credential can serve only its explicitly assigned fixed audience unless trusted end-user delegation is verified; do not enable broad cross-user retrieval through framework defaults. Server-side limits, typed errors and retry/idempotency rules remain shared across clients. Agent writes are attributed observations/proposals, never automatic approval or a generic overwrite operation.
+
+Cache only by principal/delegation, validated scope, mode and relevant generations; a receipt/TTL is not continuing permission. Re-fetch before new tool/model use and stop on denied or stale authority. Already delivered content in an external framework's history or logs cannot be recalled by TruthBase; compatibility evidence must distinguish the server release guarantee from client cache/session behavior. Broadly copying the corpus into a framework vector store is an explicit export integration with separate invalidation/retention gates, not the default retrieval path.

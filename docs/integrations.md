@@ -63,7 +63,7 @@ Status: proposed integration. Official upstream references: [S01-S04](integratio
 
 ### Integration strategy
 
-Implement one custom memory provider named `company_memory` that calls the gateway. Do not fork Hermes unless a contract test demonstrates a missing required boundary. The memory platform remains independently available through its HTTP/MCP API.
+Implement one custom memory provider named `company_memory` that calls the gateway. Do not fork Hermes unless a contract test demonstrates a missing required boundary. The memory platform remains independently available through its HTTP/MCP API. Core memory schedules, LLM jobs, learning proposals and backups belong to TruthBase; the Hermes adapter only captures permitted observations and consumes governed context. Disabling Hermes must not stop those jobs.
 
 The official provider interface documents lifecycle hooks such as `prefetch`, `sync_turn`, `on_pre_compress` and `on_memory_write`; one external provider is selected at a time [S02](integrations.md#upstream-evidence-and-verification-register). Exact parameters, threading and error semantics must be read from the pinned version rather than copied from older examples.
 
@@ -223,16 +223,18 @@ Use [facebook/astryx](https://github.com/facebook/astryx) for the web console. I
 
 ## Connection configuration
 
-A connection belongs to exactly one tenant/project and has an immutable ID, kind (`github`, `jira`, `email`, `llm`), display name, version, enabled flag, validated provider settings, server-owned credential handle and timestamps. Connectivity diagnostics refer to the exact configuration version; an edit makes an old result stale. Create disabled. Enabling requires a successful test of the current version and authorized destinations/source scopes. It does not start synchronization or grant content access.
+A connection belongs to exactly one tenant/project and has an immutable ID, kind (`github`, `github_backup`, `confluence`, `jira`, `email`, `llm`), display name, version, enabled flag, validated provider settings, server-owned credential handle and timestamps. Connectivity diagnostics refer to the exact configuration version; an edit makes an old result stale. Create disabled. Enabling requires a successful test of the current version and authorized destinations/source scopes. It does not start synchronization or grant content access.
 
 | Kind | Configurable boundary | Bounded test |
 |---|---|---|
 | GitHub | API host and allowed repositories; read-only credential | Verify identity and read permission for a selected allowed repository |
+| GitHub backup | Approved private repository ID/branch, content policy and separate write credential | Read-only identity/privacy/access probe; no commit or push |
+| Confluence | Cloud site, allowed spaces/page IDs and read-only credential | Verify identity and selected page visibility without ingestion |
 | Jira | Site and allowed project keys; read-only credential | Verify identity and visibility of a selected allowed project |
 | Email | IMAP over TLS host/port, account and allowed folders; read-only access | Authenticate and list permitted folder metadata; do not fetch message bodies or send mail |
 | LLM | Provider, API endpoint, model, purpose, timeout and cost/token limits | Explicit synthetic probe to an approved destination; report latency and sanitized result |
 
-Use explicit typed adapters for these supported kinds, not a general plugin execution system. Inspect each provider's official contract and pin SDK/protocol versions before coding. Unsupported authentication methods or provider dialects fail validation; do not advertise arbitrary-provider compatibility. LLM purposes distinguish extraction, answering and embeddings; record which routes have actually passed their contract tests.
+Use explicit typed adapters for these supported kinds, not a general plugin execution system. Inspect each provider's official contract and pin SDK/protocol versions before coding. Unsupported authentication methods or provider dialects fail validation; do not advertise arbitrary-provider compatibility. LLM purposes distinguish extraction, answering, maintenance, evaluation and embeddings; record which routes have actually passed their contract tests.
 
 Store credentials through a server-side secret boundary, encrypted at rest with a deployment-supplied key outside the database and image. Responses include only whether a credential is configured. Rotation creates a new handle/version; disabling or rotating fences old workers and invalidates pooled sessions before acknowledgement. Do not let retries use a superseded credential. Destination validation must cover DNS resolution and redirects; deny unapproved private, loopback and metadata addresses, with explicit operator-owned exceptions for local approved services. Browser callers cannot set those exceptions.
 
@@ -241,3 +243,27 @@ Saving, testing, enabling and syncing are distinct actions. Testing requires `ma
 ## GBrain storage reference
 
 Inspected [garrytan/gbrain](https://github.com/garrytan/gbrain) at `5b5891069413b28b2fe3a50675116d67d5a1e145`, cloned under ignored `.upstream/gbrain`. Its [Markdown parser](https://github.com/garrytan/gbrain/blob/5b5891069413b28b2fe3a50675116d67d5a1e145/src/core/markdown.ts) separates frontmatter, compiled content and timeline; its [engine contract](https://github.com/garrytan/gbrain/blob/5b5891069413b28b2fe3a50675116d67d5a1e145/docs/ENGINES.md) still defines database-backed behavior. This is source inspection only, not a runtime test or a claim that GBrain has no database. TruthBase adopts human-readable Markdown content while retaining its own exact-revision review and access rules; no GBrain runtime dependency is introduced.
+
+## Memory-maintenance source evidence
+
+At the recorded Hermes inspection commit `503a6b60e5357228d26196e606099e0ac79b7fdf`, [background review](https://github.com/nousresearch/hermes-agent/blob/503a6b60e5357228d26196e606099e0ac79b7fdf/agent/background_review.py) evaluates conversation snapshots in a forked agent. [Curator](https://github.com/nousresearch/hermes-agent/blob/503a6b60e5357228d26196e606099e0ac79b7fdf/agent/curator.py) is idle-triggered skill maintenance, with a seven-day default interval and opt-in LLM consolidation. The catalog's [hermes-dreaming entry](https://github.com/nousresearch/hermes-agent/blob/503a6b60e5357228d26196e606099e0ac79b7fdf/plugin-catalog/hermes-dreaming.yaml) describes a community plugin, not a verified built-in daily fact-governance service.
+
+At the recorded GBrain inspection commit `5b5891069413b28b2fe3a50675116d67d5a1e145`, [dream](https://github.com/garrytan/gbrain/blob/5b5891069413b28b2fe3a50675116d67d5a1e145/src/commands/dream.ts) delegates to its maintenance cycle. Its [system-of-record contract](https://github.com/garrytan/gbrain/blob/5b5891069413b28b2fe3a50675116d67d5a1e145/docs/architecture/system-of-record.md) explicitly distinguishes Markdown-backed knowledge from database-only authority/operational state requiring separate backup. These sources inform bounded review, maintenance and backup design; no upstream code was executed or copied, and compatibility is not claimed. TruthBase implements its own governed scheduler and provider-independent interfaces rather than importing either agent runtime into core.
+
+## Confluence inbound synchronization
+
+User-selected direction is Confluence → TruthBase. Start with a Confluence Cloud adapter against the official [REST v2 page](https://developer.atlassian.com/cloud/confluence/rest/v2/api-group-page/) and [version](https://developer.atlassian.com/cloud/confluence/rest/v2/api-group-version/) contracts; Data Center is a separate unsupported dialect until explicitly implemented/tested. Source inspection establishes API concepts only, not runtime compatibility.
+
+Connection setup/test remains separate from a `manage_connections`-authorized ingestion schedule and source-owner permission. The job binds a site, project, allowlisted spaces/pages, extraction purpose, bounded window/cursor and intake limits. Track page ID, upstream version/body representation/hash, author/editor/time, local importer/run and scoped ACL evidence; do not infer human authorship from the integration account. Cursor pagination and retries preserve completed source checkpoints; webhooks are untrusted change hints requiring an authenticated refetch.
+
+Retain the exact permitted original body and a versioned normalized Markdown representation with locators back to that source revision. Unsupported macros, embedded content, tables or attachments must produce an explicit unsupported/partial record or review gap, not silently disappear or become invented prose. Never execute macros or recursively fetch links outside the allowlist. Live adapter acceptance requires real authorized Cloud fixtures, including restrictions; mocks alone cannot prove source authorization.
+
+A changed page creates an immutable source revision and candidates through existing review/invalidation rules. Imported content is not approved merely because a Confluence page is published. Material changes to supporting spans block affected serving until reassessed; unrelated page edits do not automatically rewrite every fact. If the exact unchanged support cannot be proved, fail closed for affected dependencies. Local drafts preserve their base source revision; concurrent upstream changes mark their evidence stale and require an explicit evidence diff/new revision before review. Never overwrite local proposals or merge them into approved content automatically.
+
+Source deletion, confirmed access loss and incomplete/failed listing remain distinct. Use the existing source validity barrier for known loss; when source authorization cannot be established, deny affected use until revalidated. Missing a page from one paginated response is not proof of deletion. The adapter's broad service-account visibility must not become end-user access; map and enforce source restrictions or keep the content quarantined. Inbound sync has no page-create/update/delete capability, no writeback credential and no outbound publication job. New source types follow this same intake/evidence contract rather than a universal bidirectional sync engine.
+
+## Future framework clients
+
+Dify, Mastra and LangChain are consumers of the governed API, not dependencies of core memory management. Prefer the common MCP path first; use a thin typed HTTP/context adapter when workflow retrieval needs structured context. The official [Dify MCP announcement](https://dify.ai/blog/v1-6-0-built-in-two-way-mcp-support), [Mastra MCP package](https://github.com/mastra-ai/mastra/blob/main/packages/mcp/README.md) and [LangChain integration reference](https://reference.langchain.com/python/integrations/overview) document relevant extension mechanisms. These references do not establish TruthBase compatibility.
+
+F03 owns pinned runtime/client tests, exact setup instructions and a capability record for each framework: auth/delegation, transport, schema preservation, citations/qualifiers, limits, cancellation/retry and session/cache behavior after revocation. Unsupported identity propagation means a fixed authorized service audience only or a blocked multi-user integration, never trusting user-supplied IDs. Do not install/fork these frameworks or create speculative SDK packages in M1. Framework-neutral context/MCP contracts belong to M14 now; named-framework adapters and certification follow M1.
