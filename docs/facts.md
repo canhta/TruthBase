@@ -33,6 +33,10 @@ Use two time dimensions: `valid_from` / `valid_to` for when a claim applies in t
 | SkillRevision | Versioned procedure, scope, dependency manifest, evaluation report, approval and deployment state |
 | CleanupPlan | Targets, action, expected generations, justification, retention checks, approvals, execution receipts |
 | CoverageManifest | Versioned domain/capability inventory, accountable owner, expected questions/behaviors, exact member revisions and explicit gaps; no inherited approval |
+| ModelEntry | Provider/model ID, connection/endpoint, enabled scopes/purposes, tested capabilities, input/output limits and pricing version |
+| ModelRoute | Versioned purpose-to-model mapping and explicit capability/egress-compatible fallback list |
+| BudgetPolicy | Scope/owner, currency and period/timezone, monetary/token/request/concurrency limits, thresholds and delegated ceiling |
+| UsageReservation | Stable attempt/run identity, model/route/pricing/policy versions, reserved amount, observed usage, settlement/uncertainty and audit references |
 | MemorySchedule | Project, enabled flag, timezone/local time, policy/version, inference route, work/cost limits and next resolved slot |
 | MemoryRun | Scoped schedule/manual trigger, input manifest/checkpoint, fenced lease, model/prompt/evaluator versions, proposal IDs, cost evidence and terminal outcome |
 | BackupPolicy | Project/audience, approved repository ID/branch, included content classes, connection ID/version and policy version |

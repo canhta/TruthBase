@@ -126,11 +126,11 @@ One repository contains the deployable apps and their shared domain implementati
 ```text
 apps/
   web/                     React/TypeScript, Astryx and browser tests
-  api/                     Python HTTP/MCP composition and transport
-  worker/                  Python background-job entry points
+  api/                     TypeScript HTTP/MCP composition and transport
+  worker/                  TypeScript background-job entry points
 packages/
-  core/                    Python domain/application rules and ports
-  adapters/                Python persistence, authorization and vendor adapters
+  core/                    TypeScript domain/application rules and ports
+  adapters/                TypeScript persistence, authorization and vendor adapters
 infra/
   docker/                  Compose, image builds and deployment configuration
 tests/
@@ -141,11 +141,11 @@ scripts/                   repository maintenance and verified dev commands
 .github/                   CI, contribution forms and ownership
 ```
 
-Use a root [uv workspace](https://docs.astral.sh/uv/concepts/projects/workspaces/) with one `uv.lock` for Python and a root [pnpm workspace](https://pnpm.io/workspaces) with one `pnpm-lock.yaml` for JavaScript. Declare members explicitly so upstream checkouts and examples cannot become packages. Pin toolchain versions in M00; each member declares its direct dependencies. Keep vendor runtimes outside the application workspace when their dependencies conflict, communicating through the pinned adapter boundary.
+Use one root [pnpm workspace](https://pnpm.io/workspaces) and one `pnpm-lock.yaml` for all TruthBase application packages. Node.js 24 LTS is the runtime baseline; M00 pins exact supported toolchain versions. Declare members explicitly so upstream checkouts and examples cannot become packages; each member declares its direct dependencies. Vendor runtimes remain outside this workspace and communicate through pinned adapters. Do not embed their Python/Go environments into the TruthBase application.
 
-Dependencies point inward: API/worker composition imports adapters and core; adapters implement core ports; core imports neither adapters nor applications. Web calls the API and imports neither Python code nor worker internals. Keep authorization rules in core and OpenFGA/persistence clients in adapters. Organize these packages by capability rather than creating a package per class or diagram box. No cross-app source imports, umbrella `utils` package, parallel `services/` tree or duplicate domain rules in TypeScript. Generate frontend API types from the backend schema when needed; never maintain a second handwritten contract.
+Dependencies point inward: API/worker composition imports adapters and core; adapters implement core ports; core imports neither adapters nor applications. Web calls the API and imports neither server implementation nor worker internals. Share only browser-safe contract schemas/types through explicit package exports. Keep authorization rules in core and OpenFGA/persistence clients in adapters. Organize these packages by capability rather than creating a package per class or diagram box. No cross-app source imports, umbrella `utils` package, parallel `services/` tree or duplicate domain rules in the browser. Generate frontend API types from the backend schema when needed; never maintain a second handwritten contract.
 
-Python members use `src/<package>/` with unit tests beside that member; browser/component tests belong to `apps/web`. Root tests cover only boundaries spanning members. Canonical migrations belong to the persistence adapter and run through one explicit migration entry point; vendor migrations remain vendor-owned. Keep shared test fixtures only when multiple tests actually need them.
+TypeScript members use `src/` with unit tests beside that member; browser/component tests belong to `apps/web`. Root tests cover only boundaries spanning members. Canonical migrations belong to the persistence adapter and run through one explicit migration entry point; vendor migrations remain vendor-owned. Keep shared test fixtures only when multiple tests actually need them.
 
 M00 creates the smallest runnable workspace and root developer commands. CI uses locked installs and declared package dependencies; changes to core trigger dependent backend tests, API contracts trigger web compatibility checks, and infra changes trigger deployment smoke checks. Broad monorepo task runners or remote caches require a measured need. Repository navigation stays in README; package READMEs and nested AGENTS files are added only for unique instructions that cannot be inferred from code/configuration.
 
@@ -199,6 +199,7 @@ Status: normative product requirements. `MUST` is required when the owning featu
 | REQ-36 | MUST attribute every mutation and admit independently reviewable, evidence-bound facts through bounded intake with explicit system coverage | [Provenance](facts.md#provenance-for-every-mutation), [Fact boundaries](facts.md#fact-boundaries-and-system-coverage), [Intake](facts.md#deliberate-intake) | E80-E81, E15-E20 | [M03](https://github.com/canhta/TruthBase/issues/4), [M05](https://github.com/canhta/TruthBase/issues/6), [M06](https://github.com/canhta/TruthBase/issues/7), [M16](https://github.com/canhta/TruthBase/issues/20) |
 | REQ-37 | MUST expose bounded authorized graph/list/Markdown views and conflict-safe draft editing through the same core | [Graph workspace](#graph-and-markdown-workspace), [View API](api.md#graph-and-markdown-views) | E82, E18, E56 | [M12](https://github.com/canhta/TruthBase/issues/15) |
 | REQ-38 | MUST synchronize selected Confluence sources inward with provenance, restrictions, conflict-safe local drafts and no writeback | [Confluence sync](integrations.md#confluence-inbound-synchronization) | E83, E28, E81 | [M18](https://github.com/canhta/TruthBase/issues/22) |
+| REQ-39 | MUST support OpenAI, Claude, Gemini and DeepSeek text models with scoped model/route management and transactional budget admission | [Models](integrations.md#llm-providers-and-model-catalog), [Budgets](lifecycle.md#budget-enforcement) | E85-E86, E48 | [M19](https://github.com/canhta/TruthBase/issues/25) |
 
 The spec column links to the canonical owner. Task IDs resolve through the [roadmap](https://github.com/canhta/TruthBase/issues). Each implementation pull request must reference at least one requirement and test ID. A requirement is not complete merely because an API returns a success code: verify resulting state, audit history, outbox events, retrieval eligibility and unauthorized-access behavior.
 
@@ -208,13 +209,14 @@ Every enabled MUST requirement needs evidence before a real-data pilot. Deferred
 
 ## Web administration
 
-The web console is the primary management interface, using React, TypeScript and Astryx. Python remains the backend language. Core application services expose typed use cases shared by HTTP, MCP and workers; neither the frontend nor Hermes contains a second implementation of memory rules. Extend a core capability through its port, API contract and scoped web workflow rather than introducing a general plugin framework. Use one authenticated API and the same policy decisions for browser, MCP and Hermes callers; browser visibility is not an authorization boundary.
+The web console is the primary management interface, using React, TypeScript and Astryx. API, workers and core also use TypeScript on Node.js. Core application services expose typed use cases shared by HTTP, MCP and workers; neither the frontend nor Hermes contains a second implementation of memory rules. Extend a core capability through its port, API contract and scoped web workflow rather than introducing a general plugin framework. Use one authenticated API and the same policy decisions for browser, MCP and Hermes callers; browser visibility is not an authorization boundary.
 
 | Area | User outcome |
 |---|---|
 | Access | Inspect scoped principals, roles and exact publication grants; grant or revoke only within delegated authority |
 | Review and Publications | Read evidence, resolve clarification, decide with notes, inspect exact versions and publish through separate approval/grant steps |
 | Connections | Configure Jira, GitHub, Confluence inbound sync, email and LLM destinations; replace credentials, test connectivity and inspect sanitized failures |
+| Models & Budgets | Manage OpenAI, Claude, Gemini and DeepSeek model entries/routes; configure scoped limits and inspect reserved/settled/uncertain usage |
 | Agents | Connect an independently authenticated Codex or OpenCode client to MCP; inspect scope and revoke agent credentials |
 | Operations | Inspect readiness, worker failures, projection lag, memory-run outcomes and backup coverage; Docker lifecycle stays with the deployment operator |
 | Memory | Switch between scoped list, graph and Markdown views; inspect domain/capability coverage, creator/editor/source/reviewer and exact diffs; save edits only as new candidates |

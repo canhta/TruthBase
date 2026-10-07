@@ -53,11 +53,11 @@ Do not ask the same resolved question again. Read the current decision record fi
 
 ## ADR-15: web console and deployable agent service
 
-User scope, 2026-10-07: provide a web UI with Astryx, access management, Jira/GitHub/LLM/email configuration, Docker packaging and MCP access for Codex/OpenCode. React/TypeScript is the frontend choice; the Python backend and Hindsight/Hermes milestone remain. Connection setup/probes are included; live source ingestion still needs source authorization. This extends the synthetic milestone without enabling procedural learning or destructive cleanup. Canonical contracts: [web administration](../spec.md#web-administration), [connections](../integrations.md#connection-configuration), [MCP](../api.md#independent-mcp-clients), [deployment](../lifecycle.md#docker-deployment).
+User scope, 2026-10-07: provide a web UI with Astryx, access management, Jira/GitHub/LLM/email configuration, Docker packaging and MCP access for Codex/OpenCode. React/TypeScript is the frontend choice; the Hindsight/Hermes integration milestone remains; all TruthBase application code uses TypeScript on Node.js. Connection setup/probes are included; live source ingestion still needs source authorization. This extends the synthetic milestone without enabling procedural learning or destructive cleanup. Canonical contracts: [web administration](../spec.md#web-administration), [connections](../integrations.md#connection-configuration), [MCP](../api.md#independent-mcp-clients), [deployment](../lifecycle.md#docker-deployment).
 
-## ADR-16: one polyglot monorepo
+## ADR-16: one TypeScript monorepo
 
-User request, 2026-10-07: organize the implementation as a monorepo. Use `apps`, `packages` and `infra` with inward dependencies and one lockfile per language ecosystem. The [layout](../spec.md#monorepo-layout) owns package boundaries and tooling rules; M00 owns executable scaffolding. Keep docs and progress authority unchanged. Split packages or add build orchestration only for a demonstrated boundary or build constraint.
+User request, 2026-10-07: organize the implementation as a monorepo. Use `apps`, `packages` and `infra` with inward dependencies and one pnpm workspace and lockfile for TruthBase. The [layout](../spec.md#monorepo-layout) owns package boundaries and tooling rules; M00 owns executable scaffolding. Keep docs and progress authority unchanged. Split packages or add build orchestration only for a demonstrated boundary or build constraint.
 
 ## ADR-17: Markdown content with a transactional control ledger
 
@@ -86,3 +86,11 @@ User direction, 2026-10-07: future Dify, Mastra and LangChain agents must consum
 ## ADR-22: reuse libraries and Orca editor patterns
 
 User direction, 2026-10-07: reduce reinvention through established libraries and use Orca as the web Markdown render/editor reference. The [dependency baseline](../../CONTRIBUTING.md#dependency-reuse-baseline) owns selections and spike gates; [Orca evidence](../integrations.md#orca-markdown-ux-reference) owns the inspected source details. Reuse commodity mechanisms while keeping trust/state invariants in core. Released pins and actual compatibility evidence are required at implementation; editor beta support and queue/LLM candidates are not marked proven. No desktop runtime, speculative service or duplicate UI system is adopted.
+
+## ADR-23: four LLM providers with managed models and budgets
+
+User requirement, 2026-10-07: support at least OpenAI API, Anthropic Claude API, Gemini and DeepSeek, with web management of models and budgets. Minimum acceptance is tested text generation for each selected provider/model, not a claim that all providers support every capability. The [model catalog](../integrations.md#llm-providers-and-model-catalog), [budget admission](../lifecycle.md#budget-enforcement) and [API](../api.md#models-and-budgets-api) define scope. Prefer the verified SDK mapping over four handwritten protocol clients; TruthBase owns model policy, reservation/accounting and egress gates. No live API keys or spending are authorized by this design update.
+
+## ADR-24: TypeScript throughout TruthBase
+
+User decision, 2026-10-07: use strict TypeScript on Node.js for API, core, workers and React/Astryx web. A single pnpm workspace reduces cross-language contracts and tooling; external integrations do not dictate the core language. Prefer AI SDK, the official TypeScript MCP SDK and PostgreSQL-backed Node libraries under the existing contract gates. No Python application workspace or alternate backend implementation. Native components require a demonstrated need and a separate decision. The dependency baseline lives in [CONTRIBUTING](../../CONTRIBUTING.md#dependency-reuse-baseline).

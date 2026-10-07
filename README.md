@@ -25,12 +25,12 @@ Read only the sections linked by your issue. Contracts and evaluation cases spec
 
 ## Documentation check
 
-Python 3.12 or newer; no third-party packages required:
+Node.js 24 LTS; no third-party packages required:
 
 ```sh
 git clone https://github.com/canhta/TruthBase.git
 cd TruthBase
-python3 scripts/check_docs.py
+node scripts/check_docs.ts
 ```
 
 The check validates links, examples, traceability and digest vectors. Application and integration evidence belongs in the relevant issue. Local upstream checkouts (`.upstream/`) and reports (`reports/`) are ignored and are not required to validate this repository.

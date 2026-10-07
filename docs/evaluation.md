@@ -206,6 +206,8 @@ Status: specifications, not executed tests. Implement each scenario with synthet
 | E82 | Expand a large mixed-permission graph; edit approved Markdown concurrently; render unsafe content | Bounded scoped nodes/edges/counts only; list alternative works; edits create attributed drafts and stale writes conflict; preview executes/fetches no unauthorized content | [M12](https://github.com/canhta/TruthBase/issues/15) |
 | E83 | Replay Confluence changes; restrict a page; fail pagination; edit source and local draft concurrently | Attributed idempotent imports; valid access enforced; no false deletion or silent overwrite; stale evidence blocks approval; no upstream writes | [M18](https://github.com/canhta/TruthBase/issues/22) |
 | E84 | Run pinned Dify/Mastra/LangChain clients with concurrent identities, qualifiers, retries, cached context and revocation | Each tested client preserves the gateway contract; unsupported delegation remains blocked; delivered context limits are explicit | [F03](https://github.com/canhta/TruthBase/issues/23) |
+| E85 | Call one pinned real text model per required provider; request unsupported capabilities; disable model/credentials | Four separate compatibility receipts; validated outputs/usage/errors; no silent capability loss or unauthorized fallback | [M19](https://github.com/canhta/TruthBase/issues/25) |
+| E86 | Race budget reservations; retry/fallback, cancel/crash, roll period and replay settlement | Atomic scoped admission bounds configured spend; unknown charges retained; no duplicate settlement or agent-raised cap; web totals stay scoped | [M19](https://github.com/canhta/TruthBase/issues/25) |
 
 ### Ownership and evidence
 

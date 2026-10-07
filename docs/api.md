@@ -306,3 +306,18 @@ Core transports must serve any authenticated client without importing its framew
 Credentials bind a client application and an authenticated principal/delegation. Caller fields such as `user_id`, session name, workspace label or memory namespace never establish authority. A shared app service credential can serve only its explicitly assigned fixed audience unless trusted end-user delegation is verified; do not enable broad cross-user retrieval through framework defaults. Server-side limits, typed errors and retry/idempotency rules remain shared across clients. Agent writes are attributed observations/proposals, never automatic approval or a generic overwrite operation.
 
 Cache only by principal/delegation, validated scope, mode and relevant generations; a receipt/TTL is not continuing permission. Re-fetch before new tool/model use and stop on denied or stale authority. Already delivered content in an external framework's history or logs cannot be recalled by TruthBase; compatibility evidence must distinguish the server release guarantee from client cache/session behavior. Broadly copying the corpus into a framework vector store is an explicit export integration with separate invalidation/retention gates, not the default retrieval path.
+
+## Models and budgets API
+
+`manage_models` controls model/route configuration within assigned scope; `manage_budgets` controls limits only within a delegated ceiling. Neither grants source access, credential access, egress permission or fact approval. Reuse authenticated mutation/audit/idempotency/version rules. `manage_connections` continues to own write-only provider credentials.
+
+| Route | Contract |
+|---|---|
+| `GET /v1/models` | Scoped configured model/capability/test metadata |
+| `POST /v1/models` / `PATCH /v1/models/{model_id}` | Create disabled or update versioned model entry; no implicit provider call |
+| `POST /v1/models/{model_id}/test` | Explicit bounded synthetic probe through the same budget/egress admission |
+| `PUT /v1/model-routes/{purpose}` | Bind tested model and explicit fallback policy with expected version |
+| `GET /v1/budgets` / `PUT /v1/budgets/{budget_id}` | Read/update authorized limits and thresholds |
+| `GET /v1/usage` | Scoped reserved/settled/uncertain usage by period/model/purpose; no hidden-scope totals |
+
+Normal inference dispatch requires an enabled, tested, appropriately scoped route. An authorized model test may probe a disabled or untested entry using a one-shot synthetic request under the same credential, egress and budget gates; passing the test does not enable the entry or route. Return `429 BUDGET_EXCEEDED` when local admission exceeds a hard limit, `429 RATE_LIMITED` for temporary rate admission, `503 COST_ESTIMATE_UNAVAILABLE` when a required bound is unavailable and `503 MODEL_UNAVAILABLE` when no permitted compatible route is usable. These outcomes are safe typed errors, not a fallback to ungoverned model access.
