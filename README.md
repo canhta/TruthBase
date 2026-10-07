@@ -2,7 +2,7 @@
 
 Governed memory for agents: knowledge lives in Markdown files; a transactional control ledger governs review, access and revocation before a fact enters an answer.
 
-The design covers evidence ingestion, human review, scoped retrieval, exact-version publication and revocation, with Hindsight and Hermes integrations. The planned product includes an Astryx web console for access and connection settings, Docker packaging, and MCP access for Codex/OpenCode. [GitHub Issues](https://github.com/canhta/TruthBase/issues) are the sole source for implementation scope, progress and blockers.
+The design covers evidence ingestion, human review, scoped retrieval, exact-version publication and revocation, with Hindsight and Hermes integrations. The planned product includes an Astryx web console for access and connection settings, Docker packaging, and MCP access for Codex/OpenCode. TruthBase owns scheduled memory-improvement proposals and private GitHub content backups independently of its agent clients. [GitHub Issues](https://github.com/canhta/TruthBase/issues) are the sole source for implementation scope, progress and blockers.
 
 ## Documentation
 
@@ -25,12 +25,12 @@ Read only the sections linked by your issue. Contracts and evaluation cases spec
 
 ## Documentation check
 
-Python 3.12 or newer; no third-party packages required:
+Node.js 24 LTS; no third-party packages required:
 
 ```sh
 git clone https://github.com/canhta/TruthBase.git
 cd TruthBase
-python3 scripts/check_docs.py
+node scripts/check_docs.ts
 ```
 
 The check validates links, examples, traceability and digest vectors. Application and integration evidence belongs in the relevant issue. Local upstream checkouts (`.upstream/`) and reports (`reports/`) are ignored and are not required to validate this repository.

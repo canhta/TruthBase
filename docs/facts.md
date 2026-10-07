@@ -32,6 +32,15 @@ Use two time dimensions: `valid_from` / `valid_to` for when a claim applies in t
 | Episode | Scoped interaction/observation/outcome, source lineage and verification status; not automatically a fact |
 | SkillRevision | Versioned procedure, scope, dependency manifest, evaluation report, approval and deployment state |
 | CleanupPlan | Targets, action, expected generations, justification, retention checks, approvals, execution receipts |
+| CoverageManifest | Versioned domain/capability inventory, accountable owner, expected questions/behaviors, exact member revisions and explicit gaps; no inherited approval |
+| ModelEntry | Provider/model ID, connection/endpoint, enabled scopes/purposes, tested capabilities, input/output limits and pricing version |
+| ModelRoute | Versioned purpose-to-model mapping and explicit capability/egress-compatible fallback list |
+| BudgetPolicy | Scope/owner, currency and period/timezone, monetary/token/request/concurrency limits, thresholds and delegated ceiling |
+| UsageReservation | Stable attempt/run identity, model/route/pricing/policy versions, reserved amount, observed usage, settlement/uncertainty and audit references |
+| MemorySchedule | Project, enabled flag, timezone/local time, policy/version, inference route, work/cost limits and next resolved slot |
+| MemoryRun | Scoped schedule/manual trigger, input manifest/checkpoint, fenced lease, model/prompt/evaluator versions, proposal IDs, cost evidence and terminal outcome |
+| BackupPolicy | Project/audience, approved repository ID/branch, included content classes, connection ID/version and policy version |
+| BackupReceipt | Snapshot manifest/hash, expected remote head, exact verified commit or unknown/failed result, exported/excluded coverage and separate control-ledger backup reference |
 | OutboxEvent | Stable event ID, aggregate version, type, minimal payload, ordering and idempotency metadata |
 
 ### Fact revision content
@@ -296,6 +305,8 @@ Deployment evidence includes environment, artifact/commit identity, execution re
 
 ### Atomic claim extraction
 
+Follow [fact boundaries and system coverage](#fact-boundaries-and-system-coverage). Extraction must preserve a complete independently reviewable rule; neither fragment it into context-free tokens nor bundle unrelated rules into one approval.
+
 For each candidate preserve subject, predicate, value, conditions, exceptions, time, epistemic type, source spans and authority basis. Do not strip negatives, customer tiers, thresholds or exclusions during summarization. Split unrelated assertions rather than approving a paragraph as one fact.
 
 Use a deterministic schema validator after extraction. Malformed/unsupported content enters quarantine with a reason; it never falls back to unchecked free text. Claim confidence helps prioritize review, not bypass it.
@@ -410,3 +421,31 @@ For facts, the body maps to `claim.statement`; frontmatter contains the other im
 Keep `gm-json-v1` as the semantic digest codec: validated file fields reconstruct the existing envelopes. Add a separate SHA-256 `file_byte_hash` over the exact stored file for integrity. A cosmetic change may preserve semantic digest but cannot mutate an existing registered file; imported edits create a new revision requiring review. File frontmatter cannot approve itself or import someone else's authority.
 
 The service owns committed-file writes. UI editing and authorized offline imports produce new candidates, never in-place changes to approved files. Read committed bytes once, verify their byte hash and semantic binding, then use those verified bytes throughout the request. Missing, modified, unregistered or mismatched files fail closed; do not fall back to an index copy. Importing an exported file restores content only, never approval or access. File deletion does not bypass the lifecycle/revocation API.
+
+## Provenance for every mutation
+
+Every stored object has a server-recorded creator and scope. Every mutation, including ingestion, candidate editing, review notes, decisions, grants, configuration, scheduled runs and backups, produces an immutable audit event with event/command ID, object/revision ID, actor principal and type, authenticated delegator or initiating principal where applicable, timestamp, action, reason, and before/after version or digest. Service jobs identify their service principal, run ID and the authorizing configuration/policy version; do not attribute unattended work to a human who did not perform it. AI-authored changes also identify model/provider/prompt version and exact input lineage. API bodies, Markdown and model output cannot choose the authenticated audit actor.
+
+Original source author, submitting user, extracting agent, editor and approving reviewer are distinct roles. Imported content records the real importer even when the external author is unknown; preserve `unknown` external authorship instead of inventing it. A later content edit records a new revision/actor and its predecessor; original authorship and review history stay intact. Configuration/credential events audit metadata and safe changes, never secret values.
+
+Mutation metadata and its audit event commit with the control-state transaction; failure to persist required provenance prevents acceptance. Rejected calls cannot alter the target and use content-free security diagnostics. Missing provenance makes legacy/imported knowledge unverified and ineligible until reconciled through review. Canonical audit events are append-only to runtime roles; privileged database/backup administrators remain a separate trusted operational boundary, not a claim of cryptographic tamper-proofing.
+
+The web review packet must answer: who supplied the evidence, who proposed/edited the claim, what changed, why, which exact sources support it, who reviewed it and under which policy. The API provides the same scoped history. Review decisions remain separate from content authorship; a repository commit author or model signature cannot stand in for an approver.
+
+## Fact boundaries and system coverage
+
+A fact is one independently reviewable assertion with its applicability, conditions, exceptions, evidence and validity. Choose the boundary by the decision a reviewer can accept or decline, not by sentence count, token count or a target number of facts. Split assertions that have independent truth, owners, evidence or change lifecycles. Keep conditions and exceptions required to interpret one assertion together.
+
+For example, “Premium customers may request refunds within 30 days, excluding consumed credits” is one qualified refund rule. Do not store “refunds allowed”, “premium”, “30 days” and the exclusion as four standalone facts. Conversely, eligibility, settlement timing, accounting treatment and notification delivery need separate facts when they have separate owners/evidence. A decision-table row can be one fact when it expresses a complete rule; shared definitions must be explicitly bound to reviewed revisions rather than silently inherited from mutable prose.
+
+Use stable fact families within project → domain → capability → rule/behavior. Domain/capability IDs and versioned assignment changes are catalog metadata; classification never widens scope or overrides ACLs. Human-readable domain views are generated from scoped catalog queries, not duplicate editable copies in parallel folders. The immutable ID-based Markdown paths remain authoritative and are not renamed when the taxonomy changes.
+
+A versioned coverage manifest names an explicit inventory of expected business questions/behaviors, owner and exact fact revisions or known gaps. It may group approved facts into a workflow or rule set without duplicating their text. Grouping does not approve members; new prose asserting a cross-fact conclusion is a separate derived candidate needing lineage/review. Each member remains independently versioned and subject to current eligibility. Supersession makes a manifest's affected coverage stale until an authorized update selects the reviewed replacement.
+
+Review can show a bounded group for context, but must retain an explicit decision/note for each exact revision. No blanket project approval or one-click approval of an unseen generated inventory. Detect missing, duplicate and conflicting coverage against the declared inventory; do not infer full-system completeness from an LLM scan. Unknown coverage is visible as a gap, not filled with plausible claims. Metrics are scoped to a versioned denominator and viewer permissions; hidden facts or gap counts must not leak across access boundaries.
+
+## Deliberate intake
+
+A configured connector or available LLM key is not permission to crawl. Each import/extraction job binds an initiating actor or operator-authorized schedule to an explicit source allowlist, revision/time window, purpose, project/audience, maximum source bytes/items, candidate limit, model/token/cost budget and review-queue capacity. Defaults never scan entire organizations, mailboxes or repositories. Exhausted limits stop/checkpoint and report remaining work; agents cannot widen them or recursively follow links outside the selected scope.
+
+Apply deterministic filtering, unchanged-source detection and exact deduplication before model extraction. Admit candidates only after typed validation, evidence-locator checks, provenance and granularity checks. Missing support produces a visible gap/clarification or quarantined record, not an invented fact. Repeated rejected/unmodified proposals are suppressed until inputs or a recorded reviewer instruction materially change. Queue saturation pauses further extraction and exposes the backlog; it does not silently discard evidence or auto-approve to clear the queue. The daily maintenance loop follows these same intake limits.

@@ -53,14 +53,44 @@ Do not ask the same resolved question again. Read the current decision record fi
 
 ## ADR-15: web console and deployable agent service
 
-User scope, 2026-10-07: provide a web UI with Astryx, access management, Jira/GitHub/LLM/email configuration, Docker packaging and MCP access for Codex/OpenCode. React/TypeScript is the frontend choice; the Python backend and Hindsight/Hermes milestone remain. Connection setup/probes are included; live source ingestion still needs source authorization. This extends the synthetic milestone without enabling procedural learning or destructive cleanup. Canonical contracts: [web administration](../spec.md#web-administration), [connections](../integrations.md#connection-configuration), [MCP](../api.md#independent-mcp-clients), [deployment](../lifecycle.md#docker-deployment).
+User scope, 2026-10-07: provide a web UI with Astryx, access management, Jira/GitHub/LLM/email configuration, Docker packaging and MCP access for Codex/OpenCode. React/TypeScript is the frontend choice; the Hindsight/Hermes integration milestone remains; all TruthBase application code uses TypeScript on Node.js. Connection setup/probes are included; live source ingestion still needs source authorization. This extends the synthetic milestone without enabling procedural learning or destructive cleanup. Canonical contracts: [web administration](../spec.md#web-administration), [connections](../integrations.md#connection-configuration), [MCP](../api.md#independent-mcp-clients), [deployment](../lifecycle.md#docker-deployment).
 
-## ADR-16: one polyglot monorepo
+## ADR-16: one TypeScript monorepo
 
-User request, 2026-10-07: organize the implementation as a monorepo. Use `apps`, `packages` and `infra` with inward dependencies and one lockfile per language ecosystem. The [layout](../spec.md#monorepo-layout) owns package boundaries and tooling rules; M00 owns executable scaffolding. Keep docs and progress authority unchanged. Split packages or add build orchestration only for a demonstrated boundary or build constraint.
+User request, 2026-10-07: organize the implementation as a monorepo. Use `apps`, `packages` and `infra` with inward dependencies and one pnpm workspace and lockfile for TruthBase. The [layout](../spec.md#monorepo-layout) owns package boundaries and tooling rules; M00 owns executable scaffolding. Keep docs and progress authority unchanged. Split packages or add build orchestration only for a demonstrated boundary or build constraint.
 
 ## ADR-17: Markdown content with a transactional control ledger
 
 User decision, 2026-10-07: keep knowledge content in Markdown for direct inspection and portability; retain a small database for review state, permissions and revocation. This replaces the earlier all-in-PostgreSQL content-storage description. “Small” describes responsibility, not a measured capacity claim. File content and database control state have separate authority; neither is a synchronized second editable copy of the other. Hindsight/OpenFGA retain their own required stores.
 
 Use immutable files registered only after durable writes, existing semantic digests plus byte hashes, and the existing transactional authority/release gates. Authorized edits create reviewed revisions. GBrain is a reference for Markdown organization/parsing, not a replacement governance engine. See [storage](../facts.md#markdown-content-storage), [commit protocol](../consistency.md#content-commit-protocol), [volume access](../access.md#content-volume-boundary) and [backup restore](../lifecycle.md#backup-restore). M03 owns persistence/crash proof; downstream tasks reuse it.
+
+## ADR-18: TruthBase owns memory improvement and backup
+
+User direction, 2026-10-07: memory management, continuous improvement, daily dreaming and GitHub fact backup belong to TruthBase core, using configured LLM APIs independently of Hermes. Implement recurring knowledge proposals and a private-repository content-backup capability in the synthetic milestone. Hermes remains a required client integration, not the memory orchestrator. Preserve ADR-12: automatic procedure activation and irreversible cleanup remain deferred; scheduled runs cannot approve business facts or activate their own skills.
+
+The [maintenance contract](../lifecycle.md#core-owned-memory-maintenance) owns scheduling, budgets, lineage and evaluation. [Private backup](../lifecycle.md#private-github-content-backup) owns export policy and verified remote receipts; Git content alone cannot restore the control ledger. Actual destinations, credentials and real-data exports require the existing owner decisions. This adds product capabilities, not permission to run a real daily job or publish data now.
+
+## ADR-19: trust-led intake and reviewable fact units
+
+User direction, 2026-10-07: prioritize trustworthy data, attribution of every addition/change and explicit approval over autonomous bulk scanning. Choose fact boundaries that preserve a complete verifiable rule while composing into large-system domain/capability coverage. [Provenance](../facts.md#provenance-for-every-mutation), [fact boundaries](../facts.md#fact-boundaries-and-system-coverage) and [deliberate intake](../facts.md#deliberate-intake) own these rules. Raw source storage is not knowledge approval; daily improvement remains bounded proposal work. Do not optimize for fact volume or generate missing coverage as truth.
+
+## ADR-20: graph/editor and inbound Confluence
+
+User direction, 2026-10-07: expose facts as scoped graphs and directly readable/editable Markdown in the web console. Views share canonical identities and policies; edits create reviewed draft revisions. User selected one-way Confluence import; no writeback. The initial adapter target is Confluence Cloud REST v2, an implementation default rather than a claim about the user's deployment. [Graph/editor](../spec.md#graph-and-markdown-workspace) and [Confluence sync](../integrations.md#confluence-inbound-synchronization) own the contracts.
+
+## ADR-21: framework-independent memory access
+
+User direction, 2026-10-07: future Dify, Mastra and LangChain agents must consume TruthBase effectively. Keep a shared versioned MCP/HTTP context contract, scoped delegated identity and provider-independent core now; F03 adds tested framework adapters later. Context retrieval must preserve fact qualifiers, provenance and revocation boundaries without requiring answer generation. Named-framework compatibility is not claimed until pinned real-client evidence exists.
+
+## ADR-22: reuse libraries and Orca editor patterns
+
+User direction, 2026-10-07: reduce reinvention through established libraries and use Orca as the web Markdown render/editor reference. The [dependency baseline](../../CONTRIBUTING.md#dependency-reuse-baseline) owns selections and spike gates; [Orca evidence](../integrations.md#orca-markdown-ux-reference) owns the inspected source details. Reuse commodity mechanisms while keeping trust/state invariants in core. Released pins and actual compatibility evidence are required at implementation; editor beta support and queue/LLM candidates are not marked proven. No desktop runtime, speculative service or duplicate UI system is adopted.
+
+## ADR-23: four LLM providers with managed models and budgets
+
+User requirement, 2026-10-07: support at least OpenAI API, Anthropic Claude API, Gemini and DeepSeek, with web management of models and budgets. Minimum acceptance is tested text generation for each selected provider/model, not a claim that all providers support every capability. The [model catalog](../integrations.md#llm-providers-and-model-catalog), [budget admission](../lifecycle.md#budget-enforcement) and [API](../api.md#models-and-budgets-api) define scope. Prefer the verified SDK mapping over four handwritten protocol clients; TruthBase owns model policy, reservation/accounting and egress gates. No live API keys or spending are authorized by this design update.
+
+## ADR-24: TypeScript throughout TruthBase
+
+User decision, 2026-10-07: use strict TypeScript on Node.js for API, core, workers and React/Astryx web. A single pnpm workspace reduces cross-language contracts and tooling; external integrations do not dictate the core language. Prefer AI SDK, the official TypeScript MCP SDK and PostgreSQL-backed Node libraries under the existing contract gates. No Python application workspace or alternate backend implementation. Native components require a demonstrated need and a separate decision. The dependency baseline lives in [CONTRIBUTING](../../CONTRIBUTING.md#dependency-reuse-baseline).
