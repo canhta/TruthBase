@@ -58,7 +58,7 @@ requirements = re.findall(r'^\| (REQ-\d+) \|', requirements_text, re.M)
 require(len(scenarios) == len(set(scenarios)), 'duplicate scenario definitions')
 require(len(requirements) == len(set(requirements)), 'duplicate requirement definitions')
 require(set(f'E{i:02}' for i in range(1, 63)) <= set(scenarios), 'an original E01-E62 scenario was lost')
-require(set(requirements) == {f'REQ-{i:02}' for i in range(1, 33)}, 'requirement definitions differ from REQ-01–REQ-32')
+require(set(requirements) == {f'REQ-{i:02}' for i in range(1, 34)}, 'requirement definitions differ from REQ-01–REQ-33')
 for path, body in texts.items():
     for scenario in re.findall(r'\bE\d{2,}\b', body):
         require(scenario in scenarios, f'{path.relative_to(ROOT)}: unknown scenario {scenario}')

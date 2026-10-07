@@ -197,6 +197,8 @@ Status: specifications, not executed tests. Implement each scenario with synthet
 | E73 | Save/test each connection kind; probe an unapproved destination or redirect | Save causes no probe; bounded test causes no ingestion/grant; endpoint policy enforced; real-provider versus mock evidence distinguished | [M13](https://github.com/canhta/TruthBase/issues/16) |
 | E74 | Connect pinned Codex and OpenCode clients; forge scope, reuse session, then revoke credentials/content | Both real clients obey identical gateway policy; sessions isolated; later releases denied; no privileged tools exposed | [M14](https://github.com/canhta/TruthBase/issues/17) |
 | E75 | Build/start Compose cleanly; fail migration/policy; restart with durable work pending | Only intended entrypoint exposed; readiness fails closed; state and idempotency survive; E46.revocation evidence reused | [M15](https://github.com/canhta/TruthBase/issues/18) |
+| E76 | Crash before/after file registration; race identical/conflicting writes; retry the command | No partial decision or duplicate effect; unregistered files remain unreadable; committed references resolve durable identical bytes | [M03](https://github.com/canhta/TruthBase/issues/4) |
+| E77 | Parse/round-trip Markdown; alter/delete a committed file; forge authority frontmatter or traverse scope via paths/symlinks | Semantic codec preserved; unsafe/ambiguous files rejected; tampered/missing bytes fail closed; edits import only as new unapproved revisions | [M03](https://github.com/canhta/TruthBase/issues/4) |
 
 ### Ownership and evidence
 

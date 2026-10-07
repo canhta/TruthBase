@@ -58,3 +58,9 @@ User scope, 2026-10-07: provide a web UI with Astryx, access management, Jira/Gi
 ## ADR-16: one polyglot monorepo
 
 User request, 2026-10-07: organize the implementation as a monorepo. Use `apps`, `packages` and `infra` with inward dependencies and one lockfile per language ecosystem. The [layout](../spec.md#monorepo-layout) owns package boundaries and tooling rules; M00 owns executable scaffolding. Keep docs and progress authority unchanged. Split packages or add build orchestration only for a demonstrated boundary or build constraint.
+
+## ADR-17: Markdown content with a transactional control ledger
+
+User decision, 2026-10-07: keep knowledge content in Markdown for direct inspection and portability; retain a small database for review state, permissions and revocation. This replaces the earlier all-in-PostgreSQL content-storage description. “Small” describes responsibility, not a measured capacity claim. File content and database control state have separate authority; neither is a synchronized second editable copy of the other. Hindsight/OpenFGA retain their own required stores.
+
+Use immutable files registered only after durable writes, existing semantic digests plus byte hashes, and the existing transactional authority/release gates. Authorized edits create reviewed revisions. GBrain is a reference for Markdown organization/parsing, not a replacement governance engine. See [storage](../facts.md#markdown-content-storage), [commit protocol](../consistency.md#content-commit-protocol), [volume access](../access.md#content-volume-boundary) and [backup restore](../lifecycle.md#backup-restore). M03 owns persistence/crash proof; downstream tasks reuse it.
