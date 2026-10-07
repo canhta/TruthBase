@@ -44,6 +44,14 @@ No package install, external data transfer, production write, deletion or infras
 
 Never invent upstream methods or configuration flags. Pin the upstream revision, inspect its contract and write adapter tests first. Any unverified integration is `blocked` or `not_tested`, not complete.
 
+## Tooling and code comments
+
+Use Biome for application formatting/linting and Lefthook for Git hooks.
+
+Keep dependency and toolchain versions in their authoritative package/toolchain configuration; do not repeat hardcoded versions in application code, scripts or documentation. Use the package manager and upstream CLIs to add, upgrade and resolve dependencies. Never hand-edit lockfiles or generated migration files; generate and apply migrations through the owning migration CLI. Preserve reproducible locked installs and verify upgrades against the current runtime and integration contracts.
+
+Write concise comments only when they add information the code cannot express, such as a constraint, tradeoff or reason. Do not narrate the code or add documentation links to comments by default.
+
 ## Completion record
 
 Record verified progress in the authorized GitHub issue. Keep detailed handoffs local under ignored `reports/`, following [CONTRIBUTING](CONTRIBUTING.md#review-and-handoff). Do not create a local project-state file, task list or progress dashboard.

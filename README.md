@@ -6,7 +6,7 @@ The design covers evidence ingestion, human review, scoped retrieval, exact-vers
 
 ## Local development
 
-Use Node.js **24.21.0** (`.nvmrc` / `.node-version`) and pnpm **12.5.1** (`packageManager`). Install pnpm separately or use an existing Corepack installation with `corepack pnpm` in place of `pnpm`.
+Use the Node.js version declared in `.node-version` (also available through `.nvmrc`) and pnpm declared in `package.json#packageManager`. Install pnpm separately or use an existing Corepack installation with `corepack pnpm` in place of `pnpm`.
 
 ```sh
 pnpm install --frozen-lockfile
