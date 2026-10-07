@@ -38,6 +38,8 @@ Examples illustrate these contracts; they do not override them. If specification
 
 Write reports and review results as local files. Publication requires the user’s explicit instruction. Maintain one current contract and task path; remove superseded documents and update incoming links instead of keeping a parallel version.
 
+Fix all issues found during implementation and review that fit the current bounded task. If a finding is large, requires a separate design decision or materially expands scope, create a GitHub issue with the impact, evidence, acceptance criteria and any blocking relationship. Record the unresolved finding in the current issue and local handoff; do not claim it fixed.
+
 Implement one bounded task at a time. Verify repository state and prerequisites. Write a small plan including acceptance tests before editing. Avoid unrelated refactors and undeclared dependencies. Preserve required notes, lineage, idempotency and access checks even in a minimal slice.
 
 No package install, external data transfer, production write, deletion or infrastructure provisioning is implied by reading these docs. Stay within the current user's authorization and the environment's tool permissions. Do not auto-install or invoke optional skill frameworks. Work directly from these Markdown instructions unless the user explicitly selects another skill.
