@@ -1,0 +1,24 @@
+name: Bug or contract conflict
+description: Report an observed defect or contradictory contract.
+title: "[Bug]: "
+labels: [needs-triage]
+body:
+  - type: textarea
+    id: observed
+    attributes:
+      label: What happened?
+      description: Include the revision, relevant file or command, and a minimal synthetic reproduction.
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+      description: Link the governing contract or task when relevant.
+    validations:
+      required: true
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Evidence and environment
+      description: Actual command/output or conflicting passages. Exclude secrets and private data.

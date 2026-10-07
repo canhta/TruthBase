@@ -1,0 +1,85 @@
+{
+  "codec": "gm-json-v1",
+  "vectors": [
+    {
+      "name": "fact-content",
+      "input": {
+        "domain": "gm.fact-content.v1",
+        "tenant_id": "TEN-demo",
+        "project_id": "PRJ-atlas",
+        "claim": {
+          "statement": "Premium refunds within 30 days; consumed credits excluded.",
+          "subject": "premium_customer",
+          "predicate": "refund_request_window_days",
+          "object": 30,
+          "conditions": [
+            "customer_plan=premium"
+          ],
+          "exceptions": [
+            "consumed_credits_excluded"
+          ],
+          "kind": "business_rule",
+          "semantic_layer": "L2",
+          "epistemic_type": "approved_intent",
+          "valid_from": "2026-10-01T00:00:00.000000Z",
+          "valid_to": null,
+          "evidence_ids": [
+            "EV-email-1"
+          ],
+          "classification": "internal",
+          "authority_basis": {
+            "type": "business_owner_decision",
+            "evidence_id": "EV-email-1"
+          },
+          "uncertainty": {
+            "reason_codes": [],
+            "explanation": "",
+            "missing_evidence": [],
+            "questions": []
+          }
+        },
+        "fact_id": "FACT-refund",
+        "supersedes_revision_id": null
+      },
+      "canonical_utf8": "{\"claim\":{\"authority_basis\":{\"evidence_id\":\"EV-email-1\",\"type\":\"business_owner_decision\"},\"classification\":\"internal\",\"conditions\":[\"customer_plan=premium\"],\"epistemic_type\":\"approved_intent\",\"evidence_ids\":[\"EV-email-1\"],\"exceptions\":[\"consumed_credits_excluded\"],\"kind\":\"business_rule\",\"object\":30,\"predicate\":\"refund_request_window_days\",\"semantic_layer\":\"L2\",\"statement\":\"Premium refunds within 30 days; consumed credits excluded.\",\"subject\":\"premium_customer\",\"uncertainty\":{\"explanation\":\"\",\"missing_evidence\":[],\"questions\":[],\"reason_codes\":[]},\"valid_from\":\"2026-10-01T00:00:00.000000Z\",\"valid_to\":null},\"domain\":\"gm.fact-content.v1\",\"fact_id\":\"FACT-refund\",\"project_id\":\"PRJ-atlas\",\"supersedes_revision_id\":null,\"tenant_id\":\"TEN-demo\"}",
+      "digest": "sha256:3ece3ae874e0389d89e6a165bbb730546011e152b76b751ace011b2b165323ab"
+    },
+    {
+      "name": "fact-evidence",
+      "input": {
+        "domain": "gm.fact-evidence.v1",
+        "tenant_id": "TEN-demo",
+        "project_id": "PRJ-atlas",
+        "evidence": [
+          {
+            "evidence_id": "EV-email-1",
+            "source_revision_id": "SR-email-1",
+            "source_content_hash": "sha256:e60c8fccb8e7f594177c4e67ec4d0ab9de4166a4aedbe90146a8aa378191bfc4",
+            "locator": {
+              "kind": "email_span",
+              "message_id": "MSG-demo",
+              "start": 0,
+              "end": 24
+            },
+            "excerpt_hash": "sha256:e60c8fccb8e7f594177c4e67ec4d0ab9de4166a4aedbe90146a8aa378191bfc4",
+            "relationship": "support",
+            "attestations": []
+          }
+        ]
+      },
+      "canonical_utf8": "{\"domain\":\"gm.fact-evidence.v1\",\"evidence\":[{\"attestations\":[],\"evidence_id\":\"EV-email-1\",\"excerpt_hash\":\"sha256:e60c8fccb8e7f594177c4e67ec4d0ab9de4166a4aedbe90146a8aa378191bfc4\",\"locator\":{\"end\":24,\"kind\":\"email_span\",\"message_id\":\"MSG-demo\",\"start\":0},\"relationship\":\"support\",\"source_content_hash\":\"sha256:e60c8fccb8e7f594177c4e67ec4d0ab9de4166a4aedbe90146a8aa378191bfc4\",\"source_revision_id\":\"SR-email-1\"}],\"project_id\":\"PRJ-atlas\",\"tenant_id\":\"TEN-demo\"}",
+      "digest": "sha256:f3831288bc0d03efaef318071cbb769dd11cc5da16cdc748a17f18f561be2f1f"
+    },
+    {
+      "name": "unicode-and-escape-codec",
+      "input": {
+        "domain": "gm.codec-test.v1",
+        "text": "Tiếng Việt\n\"rule\"\\",
+        "zero": 0,
+        "empty": null
+      },
+      "canonical_utf8": "{\"domain\":\"gm.codec-test.v1\",\"empty\":null,\"text\":\"Tiếng Việt\\n\\\"rule\\\"\\\\\",\"zero\":0}",
+      "digest": "sha256:cea63da90cc43f3e18d14f929e00156fb945ef40e1377ec127b490b0bb9d993c"
+    }
+  ]
+}
