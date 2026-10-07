@@ -1,0 +1,20 @@
+{
+  "name": "@truthbase/core",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "typecheck": "tsc --noEmit -p tsconfig.json"
+  },
+  "devDependencies": {
+    "typescript": "5.9.3",
+    "@types/node": "24.19.1"
+  },
+  "exports": {
+    "./runtime": {
+      "types": "./dist/runtime.d.ts",
+      "node": "./dist/runtime.js"
+    }
+  }
+}

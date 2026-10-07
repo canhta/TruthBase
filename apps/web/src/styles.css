@@ -1,0 +1,11 @@
+@import "@astryxdesign/core/reset.css";
+@import "@astryxdesign/core/astryx.css";
+@import "@astryxdesign/theme-neutral/theme.css";
+
+body {
+  font-family: var(--font-family-body);
+}
+
+main {
+  padding: 2rem;
+}

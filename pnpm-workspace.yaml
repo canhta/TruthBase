@@ -1,0 +1,12 @@
+packages:
+  - apps/api
+  - apps/web
+  - apps/worker
+  - packages/core
+
+engineStrict: true
+strictPeerDependencies: true
+minimumReleaseAge: 1440
+allowBuilds:
+  "@astryxdesign/core@0.6.5": false
+  "lefthook@2.1.17": false

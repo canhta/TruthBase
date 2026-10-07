@@ -1,0 +1,20 @@
+{
+  "name": "@truthbase/api",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "start": "node dist/main.js"
+  },
+  "devDependencies": {
+    "typescript": "5.9.3",
+    "@types/node": "24.19.1",
+    "vitest": "5.0.3"
+  },
+  "dependencies": {
+    "@truthbase/core": "workspace:*",
+    "fastify": "5.12.5"
+  }
+}
