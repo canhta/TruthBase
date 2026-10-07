@@ -387,3 +387,26 @@ If clarification response merely locates an already included unchanged excerpt, 
 If a reviewer clicks approve on FR-002 after FR-003 replaced it, the decision fails on request/version state. If the same approval is retried with the same idempotency key and body, return the original committed decision. If the note changes under that key, return an idempotency conflict.
 
 If the approval email is later retracted, suspend dependent content and publications immediately. Keep the historical approval event; do not rewrite it into a decline.
+
+## Markdown content storage
+
+Logical entities above are API/domain shapes, not a requirement to store every field in a database column. Each immutable content revision has one Markdown file. The control ledger registers its scope, opaque object/revision IDs, relative storage key, byte hash and semantic digests. No mutable approval, permission, grant or revocation fields are authoritative in a file.
+
+```text
+<data-root>/tenants/<tenant-id>/projects/<project-id>/
+  sources/<source-id>/<source-revision-id>.md
+  facts/<fact-id>/<fact-revision-id>.md
+  notes/<note-id>.md
+  publications/<publication-id>.md
+  attachments/<attachment-id>/<blob-id>
+```
+
+This is private runtime data in a Docker volume, outside the source monorepo and public Git repository. IDs are server-issued safe path segments, never user-provided paths or source titles. Do not create `latest.md` copies: current selection is a control-ledger query. Revision history is required business history, not two competing stores of current content.
+
+Use UTF-8 Markdown with a YAML frontmatter mapping. Parse only a strict JSON-compatible subset: reject duplicate keys, custom tags, anchors/aliases, implicit timestamps, non-finite numbers and oversized/deep documents. Schema version, entity kind, scope and object/revision IDs are required. The complete body after the closing delimiter is the entity's text field; the format has no ungoverned prose appendix. Serialize deterministically with LF line endings; parser/serializer round trips must preserve validated content.
+
+For facts, the body maps to `claim.statement`; frontmatter contains the other immutable claim fields, `fact_id`, `supersedes_revision_id` and evidence bindings defined by the existing digest contract. Do not also repeat the statement in frontmatter. Publication body maps to `content`; its immutable audience, sanitized citations and dependency/release-basis bindings are frontmatter. Review-note body maps to the immutable note text; author/audience/target/amendment metadata is frontmatter, validated against the authenticated command. Text source snapshots keep exact original-byte hashes and protected original references when normalization changes bytes; locators must identify which representation they address.
+
+Keep `gm-json-v1` as the semantic digest codec: validated file fields reconstruct the existing envelopes. Add a separate SHA-256 `file_byte_hash` over the exact stored file for integrity. A cosmetic change may preserve semantic digest but cannot mutate an existing registered file; imported edits create a new revision requiring review. File frontmatter cannot approve itself or import someone else's authority.
+
+The service owns committed-file writes. UI editing and authorized offline imports produce new candidates, never in-place changes to approved files. Read committed bytes once, verify their byte hash and semantic binding, then use those verified bytes throughout the request. Missing, modified, unregistered or mismatched files fail closed; do not fall back to an index copy. Importing an exported file restores content only, never approval or access. File deletion does not bypass the lifecycle/revocation API.

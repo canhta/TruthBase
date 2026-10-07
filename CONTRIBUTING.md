@@ -40,6 +40,7 @@ Choose tests by failure risk and observable contract, not method count or covera
 |---|---|
 | Pure rule, digest, time boundary | Small deterministic table of meaningful boundary cases |
 | Transaction, uniqueness, race, retry | Real PostgreSQL integration test with controlled concurrency/failure injection and state/outbox assertions |
+| Markdown persistence | Real temporary filesystem plus database; crash/retry boundaries, hash mismatch and scoped path rejection |
 | Access, publication, revocation | Real policy boundary plus captured model input/output; assert denied bytes and side effects are absent |
 | Vendor behavior | Contract test against exact pinned dependency; mocks prove only local mapping/error handling |
 | User workflow | One end-to-end refund fixture crossing the relevant boundaries |

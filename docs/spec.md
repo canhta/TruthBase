@@ -70,7 +70,7 @@ Ticket / Email / Code / Tests / Deployment
                   |
        Review service + authorized humans
                   |
-   PostgreSQL canonical ledger and eligibility
+   Markdown content + PostgreSQL control ledger
         |               |              |
   Outbox workers   Publication store   OpenFGA relations
         |               |              |
@@ -99,11 +99,11 @@ Lifecycle workers -> invalidation / rebuild / authorized cleanup
 | Hermes adapter | Scoped context exchange and candidate proposals | Direct database, FGA-admin or publication credentials |
 | Lifecycle worker | Bounded, logged plans and dependency maintenance | Arbitrary LLM-generated SQL |
 
-Use separate database roles and credentials per service. A single deployment may run several components initially, but retain their capability boundaries. Canonical data and Hindsight's internal schema are separate stores or schemas with separate migrations and permissions; never depend on undocumented engine tables.
+Use separate database roles and credentials per service. A single deployment may run several components initially, but retain their capability boundaries. Canonical Markdown volumes, the PostgreSQL control ledger and Hindsight's internal store have separate ownership and permissions; never depend on undocumented engine tables.
 
 ### Truth and projection separation
 
-Canonical claims and decisions are written transactionally. Serving projections receive only approved, eligible, authorized-scope content. Quarantined extraction is outside serving banks. Backend observations are derived proposals, not new approved facts.
+Immutable Markdown content is durably staged before its reference and control state are committed transactionally. The filesystem and database are not one atomic transaction; use the [content commit protocol](consistency.md#content-commit-protocol). Serving projections receive only approved, eligible, authorized-scope content. Quarantined extraction is outside serving banks. Backend observations are derived proposals, not new approved facts.
 
 A memory result is resolved back to exact canonical revisions before use. When a backend cannot provide reliable lineage or enforce the required input boundary, bypass it and retrieve authorized canonical records. The safe fallback may be less fluent; it must not be less governed.
 
@@ -111,9 +111,9 @@ Do not run an unrestricted `reflect` across a mixed-permission bank and filter i
 
 ### Storage outline
 
-PostgreSQL stores source metadata, evidence spans, facts, reviews, dependencies, publication objects, jobs, audits and an outbox. Source bytes are held in approved protected storage; use immutable references and hashes. Large source payloads must not be copied into every event.
+Markdown is the canonical store for knowledge payloads: textual source revisions, fact revisions, review-note bodies and publication bodies. Original attachments and exact source bytes that cannot be represented losslessly as Markdown remain protected blobs. PostgreSQL is the control ledger for identities, file references/hashes, review decisions and states, dependency relations, permissions/generations, tombstones, idempotency, jobs and outbox records. It does not hold a second authoritative copy of Markdown bodies. Structured lookup fields and search caches are derived from registered content; their schema must identify them as rebuildable. The [file contract](facts.md#markdown-content-storage) owns layout and parsing.
 
-Search indexes, summaries and embeddings are disposable projections with recorded provenance and generation. They are not backups of the canonical ledger. The minimum pilot may use database full-text search before optimizing vector recall.
+Search indexes, summaries and embeddings are disposable projections with recorded provenance and generation. They are not backups of either canonical content or the control ledger. Losing the control ledger cannot be repaired by treating Markdown files as approved or granted. The minimum pilot may use database full-text search before optimizing vector recall.
 
 ### Monorepo layout
 
@@ -189,6 +189,7 @@ Status: normative product requirements. `MUST` is required when the owning featu
 | REQ-30 | MUST configure Jira, GitHub, inbound email and LLM connections with write-only credentials and distinct bounded probes | [Connection configuration](integrations.md#connection-configuration) | E72-E73 | [M13](https://github.com/canhta/TruthBase/issues/16) |
 | REQ-31 | MUST serve independent authenticated Codex and OpenCode clients through the governed MCP boundary | [Independent MCP clients](api.md#independent-mcp-clients) | E74 | [M14](https://github.com/canhta/TruthBase/issues/17) |
 | REQ-32 | MUST package the integrated service with Docker, persistent state, protected secrets and verified readiness/recovery | [Docker deployment](lifecycle.md#docker-deployment) | E75 | [M15](https://github.com/canhta/TruthBase/issues/18) |
+| REQ-33 | MUST keep knowledge payloads in immutable Markdown with transactional control references, verified bytes and matched backup recovery | [Markdown storage](facts.md#markdown-content-storage), [Commit protocol](consistency.md#content-commit-protocol) | E76-E77, E46 | [M03](https://github.com/canhta/TruthBase/issues/4), [M11](https://github.com/canhta/TruthBase/issues/12) |
 
 The spec column links to the canonical owner. Task IDs resolve through the [roadmap](https://github.com/canhta/TruthBase/issues). Each implementation pull request must reference at least one requirement and test ID. A requirement is not complete merely because an API returns a success code: verify resulting state, audit history, outbox events, retrieval eligibility and unauthorized-access behavior.
 

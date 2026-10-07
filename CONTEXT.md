@@ -2,7 +2,7 @@
 
 | Term | Meaning in this project |
 |---|---|
-| Harness | Instructions, contracts, task packets, examples and test gates that guide an implementation agent |
+| Harness | Instructions, contracts, GitHub issues, examples and verification gates that guide an implementation agent |
 | Candidate | A proposed claim that has not passed required review |
 | Fact | Stable identity for a claim family; individual revisions carry content and approval |
 | Approved fact | An exact reviewed revision that may still be future-effective, suspended or inaccessible |
@@ -15,6 +15,8 @@
 | Declassification | Explicit authorized release of narrower sanitized information from restricted inputs |
 | Evidence | Source-version-bound material or scoped authority attestation supporting a claim |
 | Lineage | Recorded derivation from all inputs through facts, summaries, skills and publications |
+| Content store | Immutable Markdown knowledge payloads and protected original attachments; no approval or access authority |
+| Control ledger | Transactional references, decisions, permissions, generations and delivery state; cannot be rebuilt from content alone |
 | Projection | Rebuildable search/memory/view representation, not the canonical truth ledger |
 | Episode | A scoped record of an interaction and outcome, not automatically verified knowledge |
 | Skill | Versioned procedure with permissions, evaluation and activation controls |

@@ -18,3 +18,4 @@ dist/
 .vite/
 playwright-report/
 test-results/
+/data/

@@ -60,7 +60,7 @@ Events contain scoped IDs and minimal metadata, not copied private source text o
 
 ### Canonical transaction
 
-For a human decision, lock or compare-and-swap the request and fact aggregate. Recheck actor authority, policy, content/evidence digests and blockers. Insert note and decision, update state, increment versions/eligibility where applicable, and insert the outbox event in one database transaction. Roll back all changes on failure.
+For a human decision, lock or compare-and-swap the request and fact aggregate. Recheck actor authority, policy, content/evidence digests and blockers. Durably stage immutable note/content files through the protocol below. Insert their verified references and the decision, update state, increment versions/eligibility where applicable, and insert the outbox event in one database transaction. Roll back control-state changes on failure; any staged unregistered files remain unavailable.
 
 A projection worker never changes a fact to approved. An engine write success is not canonical approval. Mark each projection `pending`, `ready`, `failed`, or `invalidated` independently from fact review state.
 
@@ -103,3 +103,14 @@ A decision captures the authorization generation, policy version and verified re
 Final response release and revocation acknowledgement must use a common per-scope release gate across all serving processes. While holding it, release rechecks authority, dependency generations and effective time before handing the bounded response to the transport. Revocation waits for already admitted handoffs to finish, durably commits denial, then acknowledges. Later handoffs are denied. This boundary covers server handoff, not the time a remote client receives previously sent network bytes. Do not claim recall of bytes already handed off. [M07](https://github.com/canhta/TruthBase/issues/8) must implement/test this gate; a check followed by an unlocked socket write is insufficient.
 
 Use a bounded write deadline and abort a stalled handoff so revocation cannot wait indefinitely. The concrete transport/gate mechanism must be recorded and fault-tested for the declared process topology before serving is enabled. The initial deployment may use one serving process with a shared gate; adding processes requires cross-process coordination tests. Synthetic single-process proof is not a distributed-release claim.
+
+## Content commit protocol
+
+The filesystem and PostgreSQL do not share a transaction. Publish immutable bytes first, then register them; never commit a database reference before the corresponding bytes are durably available.
+
+1. Authorize the command and validate its typed content/scope. Resolve a server-owned storage key beneath the configured project root; reject traversal, symlinks and cross-project references. Writes use a temporary file on the same supported local filesystem as the final target.
+2. Serialize and hash bytes, flush and fsync the file, then atomically install without overwriting an existing target and fsync its parent directory. A retry may reuse an existing target only when scope, immutable identity and hashes match exactly. Network filesystems or object stores require a separate adapter contract and durability proof before use.
+3. In the existing database transaction, recheck scope, versions, authority and dependencies; verify registered file metadata; commit content reference, note/decision/control changes, idempotency receipt and outbox together. Hold trusted service write coordination so a referenced file cannot be replaced during commit. Runtime consumers cannot write committed files.
+4. A crash before database commit leaves an unregistered file, never a served fact. A crash after commit must leave durable matching bytes and a replayable receipt. Reconciliation reports missing/corrupt references and unreachable staged files; automatic irreversible deletion stays deferred with F02.
+
+Current state, grants and revocation barriers remain transactional database authority. Do not claim that staging files makes OpenFGA or Hindsight atomic. A response verifies the selected file's bytes before use, then applies the existing final authority/release gate to that buffered content. File watchers and asynchronous indexing are never approval or revocation mechanisms.

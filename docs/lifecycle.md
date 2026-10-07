@@ -175,7 +175,7 @@ Keep serving blocked. Report the completed and outstanding stores. Retry idempot
 
 #### Backup restore
 
-Restore into an isolated environment. Replay revocation and erasure tombstones, reconcile grants and projections, verify hold/retention conditions, and run security scenarios before permitting user traffic.
+Restore into an isolated environment using a matched control-ledger backup and content manifest. Back up the database snapshot plus every immutable file referenced at that snapshot, preserving hashes; application writes may continue only if this inclusion guarantee holds. Reconcile missing/corrupt files, replay revocation and erasure tombstones, reconcile grants and projections, verify hold/retention conditions, and run security scenarios before permitting user traffic. Never rebuild approvals or grants from Markdown frontmatter. Search/Hindsight projections may be rebuilt after these checks.
 
 ### Configuration ownership
 
@@ -227,7 +227,7 @@ Already delivered customer text cannot be recalled by deleting the platform reco
 
 ## Docker deployment
 
-Package the web console, gateway and workers with pinned builds and a Docker Compose deployment for PostgreSQL, policy service and the required Hindsight/Hermes integrations. Separate runtime credentials and data volumes along existing capability boundaries; do not combine vendor databases with canonical migrations. Containers run without root where upstream permits; exceptions require a documented reason and constrained capabilities.
+Package the web console, gateway and workers with pinned builds and a Docker Compose deployment for PostgreSQL, policy service and the required Hindsight/Hermes integrations. Persist the private Markdown content root separately from the PostgreSQL control-ledger volume and vendor stores. Separate runtime credentials and data volumes along existing capability boundaries; do not combine vendor databases with canonical migrations. Containers run without root where upstream permits; exceptions require a documented reason and constrained capabilities.
 
 Expose only the web/gateway entrypoint. Bind local development to loopback by default; shared deployments require TLS and real identity configuration. Keep database, policy administration and memory-engine ports internal. Inject secrets at runtime, never through image layers or committed Compose defaults. The console must not receive the Docker socket or host command execution.
 
