@@ -249,3 +249,29 @@ This creates a draft publication, not a grant. A separate authorized approval an
 ```
 
 A reviewer may receive an authorized request link through review APIs. The ordinary response does not reveal a hidden pending fact or its notes.
+
+## Console and connection API
+
+These proposed management routes use the request rules above. Tenant/project scope is explicit and validated against the authenticated principal. Mutations require `expected_version` where the resource exists. Secrets are accepted only over a protected authenticated channel; never embed them in URLs.
+
+| Route | Contract |
+|---|---|
+| `GET /v1/access` | Scoped principals, capabilities and grants; requires `manage_access` |
+| `POST /v1/access/changes` | Explicit grant/revoke with subject, target, capability, reason and expected authority generation; enforce delegated ceiling |
+| `GET /v1/connections` | Sanitized configuration and versioned test diagnostics; `manage_connections` |
+| `POST /v1/connections` | Create disabled typed configuration; optional write-only credential |
+| `PATCH /v1/connections/{connection_id}` | Replace validated non-secret settings; invalidate old test result |
+| `POST /v1/connections/{connection_id}/credentials` | Rotate write-only credential and fence old generation |
+| `POST /v1/connections/{connection_id}/test` | Bounded explicit probe returning scoped job ID; no synchronization |
+| `POST /v1/connections/{connection_id}/enable` | Enable current tested and authorized configuration |
+| `POST /v1/connections/{connection_id}/disable` | Fence use of configuration before acknowledgement |
+| `POST /v1/agent-credentials` | Issue scoped, expiring agent credential; return secret once; `manage_agent_credentials` |
+| `POST /v1/agent-credentials/{credential_id}/revoke` | Invalidate session authority and stop later releases |
+
+Configuration shapes are owned by [connection configuration](integrations.md#connection-configuration). Provider diagnostics must be sanitized before persistence and response. Connection mutation/probe routes require `manage_connections`; possession of a connection ID conveys no authority. Agent credential list/detail APIs expose metadata only. Cookie-based browser sessions require CSRF protection and restricted origins.
+
+## Independent MCP clients
+
+Expose the existing governed MCP tool contract through an authenticated gateway transport usable independently of Hermes. Start with Streamable HTTP; pin the protocol/SDK and verify transport/auth compatibility with actual pinned Codex and OpenCode versions in the implementation issue. Provide tested client configuration examples at that point, never guessed flags or a claim based only on an SDK client.
+
+Map authenticated credentials to a principal and permitted scope on the server. A caller-supplied tenant/project only narrows that scope. Reuse HTTP application services, errors, idempotency, eligibility and final-release checks. Do not expose provider keys, connection administration, access administration, approval, publication grants, shell execution or destructive cleanup as agent tools. Existing proposal/review-read tools remain capability scoped. Cross-session context isolation and revoked credentials must be tested through both real clients. Test doubles can validate mapping but cannot satisfy interoperability acceptance.

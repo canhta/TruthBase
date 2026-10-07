@@ -285,3 +285,9 @@ The extractor can propose and request review, never approve. The developer's sou
 Remove customer A's grant while a response is being prepared: no response released after the durable revocation boundary may contain PUB-001. Create FR-005 and PUB-003: old grants remain tied to PUB-001. Change a source's restrictions: derived-content eligibility is recomputed, not merely its source link hidden. Switch Hermes from developer to guest: no existing history or prefetch is reused.
 
 A privileged test observer may inspect logs/DB state; that capability is not part of any persona's API permission. Keep fixture administration separate from the principal under test.
+
+## Administration boundary
+
+Access administration, connection management and agent-credential management are separate scoped capabilities: `manage_access`, `manage_connections`, and `manage_agent_credentials`. They do not imply fact approval, publication approval, source access or permission to export content. Administrators cannot grant capabilities outside their delegated ceiling or use a connection's service account to widen their own read scope. Changes require an expected version, idempotency key and durable audit event; grants and revocations use the existing authority/release ordering.
+
+Server responses expose only permitted principals, resource references and sanitized connection metadata. Credential values are write-only and never returned in lists, details, validation errors, logs or audit diffs. UI hiding, disabled buttons and MCP tool discovery never replace server authorization. Revoked agent credentials are checked before each request and final release; long-lived sessions do not preserve revoked authority.

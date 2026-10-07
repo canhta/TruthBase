@@ -224,3 +224,11 @@ An old source event arrives after purge. The tombstone prevents reinsertion. A b
 Report separate milestones: serving blocked; online stores reconciled; local contexts invalidated; physical targets deleted; backup retention/erasure pending or completed. Do not collapse them into "deleted everywhere".
 
 Already delivered customer text cannot be recalled by deleting the platform record. Record that limitation in the operational incident, without disclosing extra private content to the customer.
+
+## Docker deployment
+
+Package the web console, gateway and workers with pinned builds and a Docker Compose deployment for PostgreSQL, policy service and the required Hindsight/Hermes integrations. Separate runtime credentials and data volumes along existing capability boundaries; do not combine vendor databases with canonical migrations. Containers run without root where upstream permits; exceptions require a documented reason and constrained capabilities.
+
+Expose only the web/gateway entrypoint. Bind local development to loopback by default; shared deployments require TLS and real identity configuration. Keep database, policy administration and memory-engine ports internal. Inject secrets at runtime, never through image layers or committed Compose defaults. The console must not receive the Docker socket or host command execution.
+
+Run migrations as an explicit one-shot operation with failure preventing readiness. Distinguish liveness from readiness: process health is not policy availability or projection catch-up. Restart must retain canonical data, grants, revocation barriers and durable jobs. Shutdown stops intake and bounds in-flight work; recovery preserves idempotency. Verify backup/restore against the existing revocation barrier scenario. Publish actual build/start/upgrade/backup commands with the implementation, tested from a clean checkout; do not present proposed commands as working setup instructions.

@@ -150,6 +150,7 @@ U00 fetched these default-branch snapshots on 2026-10-07 using `git clone --dept
 | [hindsight](https://github.com/vectorize-io/hindsight) | `.upstream/hindsight` | `9269b88417ed263e5a8350f2e416ca2b322756b1` |
 | [hermes-agent](https://github.com/nousresearch/hermes-agent) | `.upstream/hermes-agent` | `503a6b60e5357228d26196e606099e0ac79b7fdf` |
 | [openfga](https://github.com/openfga/openfga) | `.upstream/openfga` | `a38d5d0f65a964b6030e0b1afd2a831f62309159` |
+| [astryx](https://github.com/facebook/astryx) | `.upstream/astryx` | `52e4193ac107ff13bc93955602d4d5f8c40e2f01` |
 
 Inspect and test these sources in [M01](https://github.com/canhta/TruthBase/issues/2)/M02/M04 before selecting runtime versions. A later fetch/pull must record a new inspected commit rather than silently replacing compatibility evidence.
 
@@ -215,3 +216,24 @@ Do not execute SQL or delete anything. Missing authority or ambiguous targets bl
 ```
 
 Output follows [CLEANUP_PLAN](lifecycle.md#cleanup-plan).
+
+## Web design system
+
+Use [facebook/astryx](https://github.com/facebook/astryx) for the web console. Its official README describes React 19+ components, prebuilt CSS and theme packages (inspected 2026-10-07). Pin the actual package versions and verify peer dependencies, license and build behavior in the web issue before implementation; source inspection is not runtime compatibility evidence. Prefer existing components and theme tokens over copied components or a second component library.
+
+## Connection configuration
+
+A connection belongs to exactly one tenant/project and has an immutable ID, kind (`github`, `jira`, `email`, `llm`), display name, version, enabled flag, validated provider settings, server-owned credential handle and timestamps. Connectivity diagnostics refer to the exact configuration version; an edit makes an old result stale. Create disabled. Enabling requires a successful test of the current version and authorized destinations/source scopes. It does not start synchronization or grant content access.
+
+| Kind | Configurable boundary | Bounded test |
+|---|---|---|
+| GitHub | API host and allowed repositories; read-only credential | Verify identity and read permission for a selected allowed repository |
+| Jira | Site and allowed project keys; read-only credential | Verify identity and visibility of a selected allowed project |
+| Email | IMAP over TLS host/port, account and allowed folders; read-only access | Authenticate and list permitted folder metadata; do not fetch message bodies or send mail |
+| LLM | Provider, API endpoint, model, purpose, timeout and cost/token limits | Explicit synthetic probe to an approved destination; report latency and sanitized result |
+
+Use explicit typed adapters for these supported kinds, not a general plugin execution system. Inspect each provider's official contract and pin SDK/protocol versions before coding. Unsupported authentication methods or provider dialects fail validation; do not advertise arbitrary-provider compatibility. LLM purposes distinguish extraction, answering and embeddings; record which routes have actually passed their contract tests.
+
+Store credentials through a server-side secret boundary, encrypted at rest with a deployment-supplied key outside the database and image. Responses include only whether a credential is configured. Rotation creates a new handle/version; disabling or rotating fences old workers and invalidates pooled sessions before acknowledgement. Do not let retries use a superseded credential. Destination validation must cover DNS resolution and redirects; deny unapproved private, loopback and metadata addresses, with explicit operator-owned exceptions for local approved services. Browser callers cannot set those exceptions.
+
+Saving, testing, enabling and syncing are distinct actions. Testing requires `manage_connections`, is bounded and audited, and never imports evidence or creates grants. An enabled LLM route still requires per-request source egress approval. Source authorization and canonical invalidation remain governed by the ingestion/access contracts; connection loss alone does not assert that source evidence was retracted.

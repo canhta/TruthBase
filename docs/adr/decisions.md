@@ -24,7 +24,6 @@ Status: proposed architecture decisions plus explicit production blockers. These
 | ADR-11 | Require real Hindsight and Hermes in M1 | User, 2026-10-07 | Integration value must be proved in the first milestone; task graph, adapter gates, REQ-15/REQ-20 |
 | ADR-12 | Defer procedure learning and irreversible cleanup; keep invalidation/revocation mandatory | User, 2026-10-07 | Bound the first milestone around core governance; F01/F02 retain their enabling gates, REQ-11–REQ-14 |
 | ADR-13 | Block a publication when its dependency is superseded; replacement requires new approval/grants | User, 2026-10-07 | Avoid presenting an obsolete rule as current; authorization, temporal selection, E65/E69 |
-
 | ADR-14 | Distribute TruthBase under MIT | User, 2026-10-07 | Public open-source distribution; upstream checkouts retain their own licenses and are excluded from this repository |
 
 Q-10 is resolved by ADR-14 and the root LICENSE file.
@@ -51,3 +50,11 @@ D00 also specifies reversible implementation contracts: `gm-json-v1`, explicit i
 An agent may implement synthetic scaffolding using explicit safe defaults. It must not resolve a security, contractual, authority or retention question by assumption. Record the blocker and a concise decision packet, then continue independent work. Updating a design decision requires an ID, owner, date, rationale and affected requirements/tests.
 
 Do not ask the same resolved question again. Read the current decision record first. Do not present a proposed decision as a user instruction.
+
+## ADR-15: web console and deployable agent service
+
+User scope, 2026-10-07: provide a web UI with Astryx, access management, Jira/GitHub/LLM/email configuration, Docker packaging and MCP access for Codex/OpenCode. React/TypeScript is the frontend choice; the Python backend and Hindsight/Hermes milestone remain. Connection setup/probes are included; live source ingestion still needs source authorization. This extends the synthetic milestone without enabling procedural learning or destructive cleanup. Canonical contracts: [web administration](../spec.md#web-administration), [connections](../integrations.md#connection-configuration), [MCP](../api.md#independent-mcp-clients), [deployment](../lifecycle.md#docker-deployment).
+
+## ADR-16: one polyglot monorepo
+
+User request, 2026-10-07: organize the implementation as a monorepo. Use `apps`, `packages` and `infra` with inward dependencies and one lockfile per language ecosystem. The [layout](../spec.md#monorepo-layout) owns package boundaries and tooling rules; M00 owns executable scaffolding. Keep docs and progress authority unchanged. Split packages or add build orchestration only for a demonstrated boundary or build constraint.

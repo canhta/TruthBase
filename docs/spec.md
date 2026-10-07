@@ -115,22 +115,35 @@ PostgreSQL stores source metadata, evidence spans, facts, reviews, dependencies,
 
 Search indexes, summaries and embeddings are disposable projections with recorded provenance and generation. They are not backups of the canonical ledger. The minimum pilot may use database full-text search before optimizing vector recall.
 
-### Suggested implementation shape
+### Monorepo layout
+
+One repository contains the deployable apps and their shared domain implementation. Create a directory only when its owning issue adds executable code or configuration; the tree below is the implementation contract, not a claim that the runtime exists.
 
 ```text
-services/gateway/           HTTP and MCP surface
-services/worker/            ingestion, projection, learning, lifecycle
-packages/domain/            types, transition guards, policies
-packages/authorization/     identity, OpenFGA and DB guard integration
-packages/adapters/          source, Hindsight and Hermes adapters
-migrations/                canonical migrations only
-contracts/                 generated API/event schemas
-tests/unit/               pure rules
-tests/integration/        real DB and policy boundaries
-tests/acceptance/         eval scenario implementations
+apps/
+  web/                     React/TypeScript, Astryx and browser tests
+  api/                     Python HTTP/MCP composition and transport
+  worker/                  Python background-job entry points
+packages/
+  core/                    Python domain/application rules and ports
+  adapters/                Python persistence, authorization and vendor adapters
+infra/
+  docker/                  Compose, image builds and deployment configuration
+tests/
+  integration/             cross-package DB/policy/adapter checks
+  acceptance/              cross-app workflows and adjudicated eval fixtures
+docs/                      canonical design contracts only
+scripts/                   repository maintenance and verified dev commands
+.github/                   CI, contribution forms and ownership
 ```
 
-Paths above are planned, not present. Start with Python/FastAPI as a proposed shared implementation language because the custom Hermes adapter can remain Python; exact runtime versions are an [M00](https://github.com/canhta/TruthBase/issues/1) decision. Another stack requires a recorded decision, not an implicit rewrite.
+Use a root [uv workspace](https://docs.astral.sh/uv/concepts/projects/workspaces/) with one `uv.lock` for Python and a root [pnpm workspace](https://pnpm.io/workspaces) with one `pnpm-lock.yaml` for JavaScript. Declare members explicitly so upstream checkouts and examples cannot become packages. Pin toolchain versions in M00; each member declares its direct dependencies. Keep vendor runtimes outside the application workspace when their dependencies conflict, communicating through the pinned adapter boundary.
+
+Dependencies point inward: API/worker composition imports adapters and core; adapters implement core ports; core imports neither adapters nor applications. Web calls the API and imports neither Python code nor worker internals. Keep authorization rules in core and OpenFGA/persistence clients in adapters. Organize these packages by capability rather than creating a package per class or diagram box. No cross-app source imports, umbrella `utils` package, parallel `services/` tree or duplicate domain rules in TypeScript. Generate frontend API types from the backend schema when needed; never maintain a second handwritten contract.
+
+Python members use `src/<package>/` with unit tests beside that member; browser/component tests belong to `apps/web`. Root tests cover only boundaries spanning members. Canonical migrations belong to the persistence adapter and run through one explicit migration entry point; vendor migrations remain vendor-owned. Keep shared test fixtures only when multiple tests actually need them.
+
+M00 creates the smallest runnable workspace and root developer commands. CI uses locked installs and declared package dependencies; changes to core trigger dependent backend tests, API contracts trigger web compatibility checks, and infra changes trigger deployment smoke checks. Broad monorepo task runners or remote caches require a measured need. Repository navigation stays in README; package READMEs and nested AGENTS files are added only for unique instructions that cannot be inferred from code/configuration.
 
 ### Deployment gates
 
@@ -172,9 +185,29 @@ Status: normative product requirements. `MUST` is required when the owning featu
 | REQ-26 | MUST keep future-effective and historical claims distinct from current truth | [Domain Model](facts.md#domain-model), [Retrieval and Answer Contract](access.md#retrieval-and-answer-contract) | E60, E65, E69 | [M03](https://github.com/canhta/TruthBase/issues/4), [M07](https://github.com/canhta/TruthBase/issues/8), [M08](https://github.com/canhta/TruthBase/issues/9) |
 | REQ-27 | MUST prevent expiry or reviewer silence from causing approval | [Fact Review State Machine](facts.md#fact-review-state-machine), [Review Inbox, Clarification and Notes](facts.md#review-inbox-clarification-and-notes) | E61, E67 | [M05](https://github.com/canhta/TruthBase/issues/6) |
 | REQ-28 | MUST enforce role and evidence-review requirements independently | [Fact Review State Machine](facts.md#fact-review-state-machine), [Authorization and Publication](access.md#authorization-and-publication) | E62 | [M04](https://github.com/canhta/TruthBase/issues/5), [M05](https://github.com/canhta/TruthBase/issues/6) |
+| REQ-29 | MUST provide an accessible Astryx web console with server-enforced scoped administration | [Web administration](#web-administration) | E71 | [M12](https://github.com/canhta/TruthBase/issues/15) |
+| REQ-30 | MUST configure Jira, GitHub, inbound email and LLM connections with write-only credentials and distinct bounded probes | [Connection configuration](integrations.md#connection-configuration) | E72-E73 | [M13](https://github.com/canhta/TruthBase/issues/16) |
+| REQ-31 | MUST serve independent authenticated Codex and OpenCode clients through the governed MCP boundary | [Independent MCP clients](api.md#independent-mcp-clients) | E74 | [M14](https://github.com/canhta/TruthBase/issues/17) |
+| REQ-32 | MUST package the integrated service with Docker, persistent state, protected secrets and verified readiness/recovery | [Docker deployment](lifecycle.md#docker-deployment) | E75 | [M15](https://github.com/canhta/TruthBase/issues/18) |
 
 The spec column links to the canonical owner. Task IDs resolve through the [roadmap](https://github.com/canhta/TruthBase/issues). Each implementation pull request must reference at least one requirement and test ID. A requirement is not complete merely because an API returns a success code: verify resulting state, audit history, outbox events, retrieval eligibility and unauthorized-access behavior.
 
 ### Release rule
 
 Every enabled MUST requirement needs evidence before a real-data pilot. Deferred features must be absent/disabled, with denial tests; disabling a feature does not mark its behavioral scenarios passed. A documented waiver cannot waive isolation, required human approval, source validity, revocation or irreversible-deletion controls. Optional features can be explicitly disabled rather than implemented incompletely.
+
+## Web administration
+
+The web console uses React, TypeScript and Astryx. Python remains the backend language. Use one authenticated API and the same policy decisions for browser, MCP and Hermes callers; browser visibility is not an authorization boundary.
+
+| Area | User outcome |
+|---|---|
+| Access | Inspect scoped principals, roles and exact publication grants; grant or revoke only within delegated authority |
+| Review and Publications | Read evidence, resolve clarification, decide with notes, inspect exact versions and publish through separate approval/grant steps |
+| Connections | Configure Jira, GitHub, inbound email and LLM destinations; replace credentials, test connectivity and inspect sanitized failures |
+| Agents | Connect an independently authenticated Codex or OpenCode client to MCP; inspect scope and revoke agent credentials |
+| Operations | Inspect readiness, worker failures and projection lag; Docker lifecycle stays with the deployment operator |
+
+Persist project selection in the UI, but validate scope on every request. Clear previous-project data on scope switch. Preserve draft notes on recoverable errors, make stale-version conflicts explicit, and show loading, empty, denied and failed states separately without exposing hidden objects. Core review/access/settings flows must support keyboard navigation and labelled controls. Avoid a second project-progress dashboard.
+
+The synthetic milestone includes this console, connection configuration and bounded tests, external-agent MCP access, and Docker packaging. Live source synchronization requires a separately scoped connector issue and Q-05 authorization; configuring a connection alone does not enable ingestion. Procedure learning and irreversible cleanup remain deferred.

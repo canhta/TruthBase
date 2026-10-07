@@ -26,7 +26,7 @@ Use existing tools and conventions. Propose a dependency only when an existing f
 
 ### Code
 
-- Use the recorded Python stack, typed boundary models and one modular application initially. Domain rules depend on interfaces, not framework requests, SQL sessions or vendor SDK types. Keep gateway, worker and adapter capabilities separate without creating services merely to match diagram boxes.
+- Use Python for backend/domain code and React/TypeScript with Astryx for the web console, typed boundary models and one modular application initially. Domain rules depend on interfaces, not framework requests, SQL sessions or vendor SDK types. Keep gateway, worker and adapter capabilities separate without creating services merely to match diagram boxes.
 - Give each decision, eligibility predicate and digest codec one implementation owner. Keep transaction boundaries visible. Validate untrusted data once at ingress and enforce database constraints for scope, identity and concurrency.
 - Introduce an abstraction when it hides a concrete policy or integration boundary, or removes demonstrated duplication. Avoid speculative registries, generic workflow engines, one-line forwarding layers and configuration for hypothetical needs.
 - Handle expected failures with the canonical error codes. Preserve causal exceptions in restricted diagnostics; never catch an authorization failure and continue. Log IDs and outcomes rather than private payloads.
