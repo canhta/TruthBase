@@ -32,6 +32,27 @@ Use existing tools and conventions. Propose a dependency only when an existing f
 - Handle expected failures with the canonical error codes. Preserve causal exceptions in restricted diagnostics; never catch an authorization failure and continue. Log IDs and outcomes rather than private payloads.
 - Use names for business meaning and ordinary control flow. Comments explain a non-obvious constraint or tradeoff that code cannot express. Omit narration, section banners, commented-out code and docstrings that repeat signatures. Remove dead code and obsolete paths when replacing behavior.
 
+### Dependency reuse baseline
+
+Prefer maintained libraries for commodity mechanisms; custom code owns trust, provenance, revision selection, approval, scope and revocation. The table is the default selection guide, not an installed or compatibility-tested stack. Add each dependency only in its owning issue, pin a released version and lockfile, inspect license/advisories/maintenance and run the relevant contract gate. Do not install the whole table during scaffolding or assume popularity proves correctness.
+
+| Boundary / owner | Preferred reuse | What stays in TruthBase / admission evidence |
+|---|---|---|
+| HTTP/schema — M00/M03 | [FastAPI](https://fastapi.tiangolo.com/features/) + [Pydantic](https://docs.pydantic.dev/latest/concepts/strict_mode/) | Strict boundary validation and generated OpenAPI; business guards and `gm-json-v1` remain explicit and independently tested |
+| Control ledger — M03 | [SQLAlchemy](https://docs.sqlalchemy.org/en/20/orm/session_transaction.html), [Psycopg](https://www.psycopg.org/psycopg3/docs/), [Alembic](https://alembic.sqlalchemy.org/en/latest/) | Transactions, migrations and driver reuse; prove row locks, RLS/pool reset and outbox atomicity; ORM convenience cannot hide boundaries |
+| Frontmatter — M03 | [PyYAML](https://pyyaml.org/wiki/PyYAMLDocumentation) safe parsing + typed validation | Enforce the stricter JSON-compatible subset, duplicate/alias/depth limits and exact body handling; `safe_load` alone does not satisfy the file contract |
+| Connector HTTP — M13/M18 | [HTTPX](https://www.python-httpx.org/) | Typed provider mappings, scoped endpoint allowlists and bounded timeout/retry; use a vendor SDK only if its pinned API covers the required endpoint |
+| MCP — M14 | [Official Python SDK](https://github.com/modelcontextprotocol/python-sdk) | Reuse protocol/transport; test authentication/delegation and real clients; no handwritten MCP framing |
+| Web data — M12 | [TanStack Query](https://tanstack.com/query/latest/docs/framework/react) + [openapi-typescript/openapi-fetch](https://openapi-ts.dev/introduction) | Generate client types from one backend schema; scope cache keys and clear revoked/previous-user data; no parallel handwritten DTOs |
+| Markdown preview — M12 | [react-markdown](https://github.com/remarkjs/react-markdown), remark-gfm and [rehype-sanitize](https://github.com/rehypejs/rehype-sanitize) | Strict web URL/asset policy and scoped internal links; no desktop `file:` protocol or unsanitized HTML path |
+| Markdown editor — M12 | Monaco source editor as inspected in Orca; [Tiptap](https://tiptap.dev/docs/editor/markdown) for gated rich editing | Reuse editor mechanics; source/preview is the lossless baseline. Rich mode needs fact/frontmatter/table/exception round-trip proof; unsupported syntax stays source-only. Markdown extension is beta at inspection, not assumed production-safe |
+| Graph — M12 | [React Flow](https://reactflow.dev/learn/advanced-use/accessibility) | Bounded authorized nodes/edges, list alternative and measured fixture size; no custom canvas engine or new graph database |
+| Durable jobs — M16 | Evaluate [Procrastinate](https://procrastinate.readthedocs.io/en/stable/index.html) first | It uses existing PostgreSQL for tasks/locks/retries/periodic work. Require crash, transactional admission, fencing and schedule/timezone proof; TruthBase keeps business idempotency/authority. Do not add Redis/Temporal or build a queue before documenting a concrete unmet requirement |
+| Multi-provider inference — M13/M16 | Evaluate [LiteLLM SDK](https://docs.litellm.ai/docs/) behind the LLM port | Use only if it reduces implemented provider mappings; pin/test the selected providers and disable unapproved routes/logging/fallbacks. No proxy service or agent framework is required merely to call a model |
+| Verification — owning issue | [pytest](https://docs.pytest.org/en/stable/), [Vitest](https://vitest.dev/guide/), [Playwright](https://playwright.dev/docs/intro) | Assign each risk to the narrowest effective layer; use real PostgreSQL/filesystem for state boundaries and a small browser workflow set, not three copies of every test |
+
+Astryx remains the chosen component/theme layer. Git backup uses the installed Git CLI through explicit argument arrays and restricted configuration; do not recreate Git or add a wrapper solely to execute commands. Procrastinate and LiteLLM are candidates requiring their owning spikes, not compatibility claims or substitutes for business policy. Security-sensitive OAuth/crypto must use maintained standards implementations selected with the identity/key deployment decision, never custom protocols.
+
 ### Mindful tests
 
 Choose tests by failure risk and observable contract, not method count or coverage percentage. Before adding a test, name the regression it catches and why a cheaper existing check does not catch it.

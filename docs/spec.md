@@ -227,6 +227,8 @@ The synthetic milestone includes this console, connection configuration and boun
 
 ### Graph and Markdown workspace
 
+Use the [Orca reference](integrations.md#orca-markdown-ux-reference) for editor/preview interactions within Astryx; library selection is owned by the [reuse baseline](../CONTRIBUTING.md#dependency-reuse-baseline).
+
 Graph, list and Markdown views resolve the same canonical IDs/revisions and permissions. Start with a selected domain/capability or fact and expand a bounded neighborhood; paginate server-side, cap nodes/edges, filter by entity/relationship/status and retain an accessible list alternative. Avoid loading an entire large organization into a visual graph. Node selection opens its verified Markdown, evidence, change history and review actions. The UI always distinguishes current approved, proposed, historical and unavailable content according to the selected mode.
 
 Edges distinguish evidence support/contradiction, derivation, explicit supersession and coverage membership. Each edge has recorded lineage and an asserted or proposed status; similarity is a retrieval hint, not an asserted business relationship. Graph data is a derived projection over canonical records and relation manifests, not a new graph database or another authoring store. Graph expand/search/counts filter visibility before transmission; no hidden node placeholders, dangling labelled edges or secret-derived layout/count hints. A guest graph, if enabled, contains permitted sanitized publication objects only.

@@ -82,3 +82,7 @@ User direction, 2026-10-07: expose facts as scoped graphs and directly readable/
 ## ADR-21: framework-independent memory access
 
 User direction, 2026-10-07: future Dify, Mastra and LangChain agents must consume TruthBase effectively. Keep a shared versioned MCP/HTTP context contract, scoped delegated identity and provider-independent core now; F03 adds tested framework adapters later. Context retrieval must preserve fact qualifiers, provenance and revocation boundaries without requiring answer generation. Named-framework compatibility is not claimed until pinned real-client evidence exists.
+
+## ADR-22: reuse libraries and Orca editor patterns
+
+User direction, 2026-10-07: reduce reinvention through established libraries and use Orca as the web Markdown render/editor reference. The [dependency baseline](../../CONTRIBUTING.md#dependency-reuse-baseline) owns selections and spike gates; [Orca evidence](../integrations.md#orca-markdown-ux-reference) owns the inspected source details. Reuse commodity mechanisms while keeping trust/state invariants in core. Released pins and actual compatibility evidence are required at implementation; editor beta support and queue/LLM candidates are not marked proven. No desktop runtime, speculative service or duplicate UI system is adopted.
