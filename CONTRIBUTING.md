@@ -4,11 +4,11 @@ Select a scoped GitHub issue before implementation. For new work, describe the p
 
 ### Work on a change
 
-1. Fork/clone the repository and create a focused branch.
+1. Clone the repository and keep each change focused. External contributors use a fork and PR.
 2. Read [AGENTS.md](AGENTS.md) and the rules below, then only the contracts named by your issue.
 3. Keep one authoritative definition of each behavior. Update references when replacing a document or implementation.
 4. Run `node scripts/check_docs.ts` with Node.js 24 LTS and `git diff --check`. The documentation checker has no third-party dependencies. Add application tests only for meaningful behavior once application code exists.
-5. Open a PR explaining the problem, observable change and commands actually run. Link the issue/task and disclose untested paths.
+5. Maintainers and authorized agents push tested changes directly to `main`; a PR is optional. Record the problem, observable change, executed checks and untested paths in the commit/task evidence. CI runs after pushes; force-push and branch deletion remain blocked. External contributors submit a PR.
 
 Use synthetic fixtures. Keep credentials, customer data, local reports and upstream checkouts out of commits. Do not report a mocked adapter as a working integration. Follow the repository's risk-based test and minimal-comment rules rather than adding coverage for its own sake.
 
